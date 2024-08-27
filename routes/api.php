@@ -26,5 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('/permissions', PermissionController::class);
     Route::apiResource('/roles', RoleController::class);
+    Route::apiResource('/users', UserController::class);
     Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions']);
 });

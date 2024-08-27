@@ -101,4 +101,9 @@ class User extends Authenticatable
         }
         return Carbon::now()->diffInYears($this->birthdate);
     }
+
+    public function ipress()
+    {
+        return $this->hasMany(Ipress::class, 'user_id', 'id');
+    }
 }

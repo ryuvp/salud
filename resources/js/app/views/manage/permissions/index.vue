@@ -129,15 +129,15 @@ const onChange = (category) =>{
                 <Toolbar class="mb-2">
                     <template v-slot:start>
                         <div class="my-2">
-                            <h5 class="m-0">Manage Permissions</h5>
+                            <h5 class="m-0">Lista de Permisos</h5>
                         </div>
                     </template>
 
-                    <template v-slot:end>
+                    <!-- <template v-slot:end>
                         <Button label="New" icon="pi pi-plus" class="mr-2" severity="success" @click="openNew" />
                         <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected"
                             :disabled="!selectedPermissions || !selectedPermissions.length" />
-                    </template>
+                    </template> -->
                 </Toolbar>
 
                 <DataTable ref="dt" :value="permissions" v-model:selection="selectedPermissions" dataKey="id"
@@ -155,7 +155,7 @@ const onChange = (category) =>{
                         </div>
                     </template>
 
-                    <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                    <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
                     <Column field="name" header="Name" headerStyle="width:24%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Name</span>
@@ -189,14 +189,14 @@ const onChange = (category) =>{
                                 </Tag>
                         </template>
                     </Column>
-                    <Column headerStyle="min-width:10rem;">
+                    <!-- <Column headerStyle="min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
                                 @click="editPermission(slotProps.data)" />
                             <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
-                    </Column>
+                    </Column> -->
                 </DataTable>
 
                 <Dialog v-model:visible="permissionDialog" :style="{ width: '450px' }" header="Permission Details"
@@ -249,7 +249,7 @@ const onChange = (category) =>{
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deletePermissionDialog" :style="{ width: '450px' }" header="Confirm"
+                <!-- <Dialog v-model:visible="deletePermissionDialog" :style="{ width: '450px' }" header="Confirm"
                     :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
@@ -271,7 +271,7 @@ const onChange = (category) =>{
                         <Button label="No" icon="pi pi-times" text @click="deletePermissionsDialog = false" />
                         <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
                     </template>
-                </Dialog>
+                </Dialog> -->
             </div>
         </div>
     </div>
