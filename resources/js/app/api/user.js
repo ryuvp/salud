@@ -1,5 +1,6 @@
-import request from '@/utils/request';
-import Resource from '@/api/resource';
+/* /resources/js/app/api/user.js */
+import request from '@/app/utils/request';
+import Resource from '@/app/api/resource';
 
 class UserResource extends Resource {
   constructor() {
