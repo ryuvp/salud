@@ -9,13 +9,11 @@ class Ipress extends Model
 {
     use HasFactory;
     protected $guard_name = 'api';
+    //table name
     protected $table = 'ipress';
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->hasMany(User::class, 'ipress_id');
     }
 }

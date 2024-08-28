@@ -14,16 +14,20 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('lastname');
             $table->string('email')->unique();
-            $table->string('code', 10)->unique();
+            $table->string('document')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->tinyInteger('status')->default(0)->comment('0:active 1:inactive');
             $table->tinyInteger('sex')->default(0)->comment('0:man 1:woman');
             $table->timestamp('birthdate')->nullable();
+            $table->unsignedBigInteger('ipress_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('ipress_id')->references('id')->on('ipress')->onDelete('cascade');
         });
     }
 

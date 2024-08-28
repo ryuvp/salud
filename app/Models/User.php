@@ -104,6 +104,6 @@ class User extends Authenticatable
 
     public function ipress()
     {
-        return $this->hasMany(Ipress::class, 'user_id', 'id');
+        return $this->belongsTo(Ipress::class, 'ipress_id');
     }
 }

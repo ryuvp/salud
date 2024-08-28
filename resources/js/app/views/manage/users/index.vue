@@ -90,13 +90,12 @@ const initFilters = () => {
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="New" icon="pi pi-plus" class="mr-2" severity="success" @click="openNew" />
-                            <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedUsers || !selectedUsers.length" />
                         </div>
                     </template>
 
                     <template v-slot:end>
-                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
-                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" disabled />
+                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" disabled />
                     </template>
                 </Toolbar>
 
@@ -121,105 +120,147 @@ const initFilters = () => {
                             </IconField>
                         </div>
                     </template>
-
-                    <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-                    <Column field="code" header="Code" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="document" header="Documento" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Code</span>
+                            <span class="p-column-title">Documento</span>
+                            {{ slotProps.data.document}}
+                        </template>
+                    </Column>
+                    <Column field="name" header="Nombre" :sortable="false" headerStyle="width:31%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Nombre</span>
+                            {{ slotProps.data.name}}
+                        </template>
+                    </Column>
+                    <Column field="email" header="Correo" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Correo Electronico</span>
+                            {{ slotProps.data.email}}
+                        </template>
+                    </Column>
+                    <Column field="ipress" header="Ipress" :sortable="false" headerStyle="width:31%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">IPRESS</span>
+                            {{ slotProps.data.ipress ? slotProps.data.ipress.name : '' }}
+                        </template>
+                    </Column>
+                    <Column field="role" header="Rol" :sortable="false" headerStyle="width:10%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Rol</span>
+                            {{ slotProps.data.roles.join(', ') }}
+                        </template>
+                    </Column>
+                    <Column headerStyle="min-width:10rem;">
+                        <template #body="slotProps">
+                            <div v-if="!slotProps.data.roles.includes('superadmin')">
+                                <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
+                                    @click="editUser(slotProps.data)" />
+                                <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded
+                                    @click="confirmDeleteUser(slotProps.data)" />
+                            </div>
                         </template>
                     </Column>
                 </DataTable>
 
-                <!-- <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
-                    <img :src="'/demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" />
-                    <div class="field">
-                        <label for="name">Name</label>
-                        <InputText id="name" v-model.trim="product.name" required="true" autofocus :invalid="submitted && !product.name" />
-                        <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
-                    </div>
-                    <div class="field">
-                        <label for="description">Description</label>
-                        <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" />
-                    </div>
-
-                    <div class="field">
-                        <label for="inventoryStatus" class="mb-3">Inventory Status</label>
-                        <Dropdown id="inventoryStatus" v-model="product.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.value">{{ slotProps.value.label }}</span>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.toLowerCase()">{{ slotProps.value }}</span>
-                                </div>
-                                <span v-else>
-                                    {{ slotProps.placeholder }}
-                                </span>
-                            </template>
-                        </Dropdown>
-                    </div>
-
-                    <div class="field">
-                        <label class="mb-3">Category</label>
-                        <div class="formgrid grid">
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category1" name="category" value="Accessories" v-model="product.category" />
-                                <label for="category1">Accessories</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
-                                <label for="category2">Clothing</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category3" name="category" value="Electronics" v-model="product.category" />
-                                <label for="category3">Electronics</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category4" name="category" value="Fitness" v-model="product.category" />
-                                <label for="category4">Fitness</label>
-                            </div>
+                <Dialog v-model:visible="userDialog" :style="{ width: '720px' }" header="Detalles del usuario" :modal="true" class="p-fluid">
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="role">Rol</label>
+                            <Dropdown id="role" v-model="user.role" :options="roles" optionLabel="name" placeholder="Select a Role" />
                         </div>
+                        
+                        <div class="field col">
+                            <label for="document">Documento</label>
+                            <InputText id="document" v-model.trim="user.document" :showIcon="true" required="true" autofocus :invalid="submitted && !user.document" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="name">Nombres</label>
+                        <InputText id="name" v-model.trim="user.name" required="true" autofocus :invalid="submitted && !user.name" />
+                        <small class="p-invalid" v-if="submitted && !user.name">Name is required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="name">Apellidos</label>
+                        <InputText id="name" v-model.trim="user.name" required="true" autofocus :invalid="submitted && !user.name" />
+                        <small class="p-invalid" v-if="submitted && !user.name">Name is required.</small>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="email">Email</label>
+                            <InputText id="email" v-model.trim="user.email" required="true" autofocus :invalid="submitted && !user.email" />
+                        </div>
+                        <div class="field col">
+                            <label for="phone">Telefono</label>
+                            <InputText id="phone" v-model.trim="user.phone" required="true" autofocus :invalid="submitted && !user.phone" />
+                        </div>
+                    </div>
+                     <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="birthdate">Fecha de nacimiento</label>
+                            <Calendar id="birthdate" v-model="user.birthdate" dateFormat="dd/mm/yy" required="true" autofocus :invalid="submitted && !user.birthdate" />
+                        </div>
+                        <div class="field col">
+                            <label for="sex">Sexo</label>
+                            <Dropdown id="sex" v-model="user.sex" :options="sexes" optionLabel="name" placeholder="Select a Sex" />
+                        </div>
+                    </div>
+                     <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="department">Departamento</label>
+                            <Dropdown id="department" v-model="user.department" :options="departments" optionLabel="name" placeholder="Select a Department" />
+                        </div>
+                        <div class="field col">
+                            <label for="province">Provincia</label>
+                            <Dropdown id="province" v-model="user.province" :options="provinces" optionLabel="name" placeholder="Select a Province" />
+                        </div>
+                        <div class="field col">
+                            <label for="district">Distrito</label>
+                            <Dropdown id="district" v-model="user.district" :options="districts" optionLabel="name" placeholder="Select a District" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="ipress">Ipress</label>
+                        <Dropdown id="ipress" v-model="user.ipress" :options="ipresses" optionLabel="name" placeholder="Select an Ipress" />
                     </div>
 
                     <div class="formgrid grid">
                         <div class="field col">
-                            <label for="price">Price</label>
-                            <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" :invalid="submitted && !product.price" :required="true" />
-                            <small class="p-invalid" v-if="submitted && !product.price">Price is required.</small>
+                            <label for="password">Contraseña</label>
+                            <InputText id="password" v-model.trim="user.password" required="true" autofocus :invalid="submitted && !user.password" />
                         </div>
                         <div class="field col">
-                            <label for="quantity">Quantity</label>
-                            <InputNumber id="quantity" v-model="product.quantity" integeronly />
+                            <label for="confirm-password">Repita la contraseña</label>
+                            <InputText id="confirm-password" v-model.trim="user.confirm_password" required="true" autofocus :invalid="submitted && !user.confirm_password" />
                         </div>
                     </div>
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" text="" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" text="" @click="saveProduct" />
+                        <Button label="Save" icon="pi pi-check" text="" @click="saveuser" />
                     </template>
-                </Dialog> -->
+                </Dialog>
 
-                <!-- <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <!-- <Dialog v-model:visible="deleteuserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product"
-                            >Are you sure you want to delete <b>{{ product.name }}</b
+                        <span v-if="user"
+                            >Are you sure you want to delete <b>{{ user.name }}</b
                             >?</span
                         >
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" text @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" text @click="deleteProduct" />
+                        <Button label="No" icon="pi pi-times" text @click="deleteuserDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" text @click="deleteuser" />
                     </template>
                 </Dialog> -->
 
-                <!-- <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <!-- <Dialog v-model:visible="deleteusersDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
+                        <span v-if="user">Are you sure you want to delete the selected users?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
+                        <Button label="No" icon="pi pi-times" text @click="deleteusersDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedusers" />
                     </template>
                 </Dialog> -->
             </div>

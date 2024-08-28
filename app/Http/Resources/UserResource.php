@@ -16,7 +16,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'code' => $this->code,
+            'document' => $this->document,
             'email' => $this->email,
             'status' => $this->status,
             'status_format' => $this->status_format,
@@ -24,6 +24,11 @@ class UserResource extends JsonResource
             'sex_format' => $this->sex_format,
             'age' => $this->age,
             'birthdate' => $this->birthdate,
+            'ipress' => $this->ipress ? [
+                'id' => $this->ipress->id,
+                'code' => $this->ipress->code,
+                'name' => $this->ipress->name,
+            ]: null,
             'roles' => array_map(
                 function ($role) {
                     return $role['name'];

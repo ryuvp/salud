@@ -18,8 +18,9 @@ class UserSeeder extends Seeder
         // Crear usuario administrador de prueba
         $admin = User::create([
             'name' => 'Administrador',
+            'lastname' => 'Administrador',
             'email' => 'admin@example.com',
-            'code' => '0000000001',
+            'document' => '0000000001',
             'birthdate' => '2006-01-02 15:04:05',
             'password' => Hash::make('password'),
         ]);
@@ -31,8 +32,9 @@ class UserSeeder extends Seeder
         // Crear usuario normal de prueba
         $user = User::create([
             'name' => 'Usuario de Prueba',
+            'lastname' => 'Usuario de Prueba',
             'email' => 'user@example.com',
-            'code' => '0000000002',
+            'document' => '0000000002',
             'birthdate' => '2006-01-02 15:04:05',
             'password' => Hash::make('password'),
         ]);
