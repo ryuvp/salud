@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class UserController extends BaseController
 {
@@ -39,48 +40,68 @@ class UserController extends BaseController
      */
     public function store(Request $request)
     {
-        $validator = Validator::make(
-            $request->all(),
-            array_merge(
-                $this->getValidationRules(),
-                [
-                    'password' => ['required', 'string', 'min:8'],
-                    'password_confirmation' => ['required', 'string', 'same:password'],
-                ]
-            )
-        );
+        // Validar la solicitud
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'document' => 'required|string|max:20|unique:users,document',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', 'min:6'],
+            'confirm_password' => 'same:password',
+            'phone' => 'nullable|string|max:15',
+            'birthdate' => 'nullable|date',
+            'ipress.id' => 'nullable|exists:ipress,id',
+            'role.id' => 'required|exists:roles,id',
+            'sex.value' => 'required|in:0,1', // 0 for Male, 1 for Female
+        ]);
 
         if ($validator->fails()) {
-            return responseFailed($validator->errors(), Response::HTTP_BAD_REQUEST);
-        } else{
-            try{
-                $params = $request->all();
-                DB::beginTransaction();
-                $user = User::create([
-                    'name' => $params['name'],
-                    'last_name' => $params['last_name'],
-                    'email' => $params['email'],
-                    'document' => $params['document'],
-                    'password' => bcrypt($params['password']),
-                    'sex' => $params['sex'],
-                    'birthdate' => $params['birthdate'],
-                    'ipress' => $params['ipress'] ?? null,
-                ]);
-                $role = Role::findByName($params['role']);
-                $user->syncRoles($role);
-                $loginUser  = Auth::user();
-                Log::query()->create([
-                    'user_id' => $user->id,
-                    'operator_id' => $loginUser->id,
-                    'title' => 'Create',
-                    'content' => "Created by {$loginUser->name}({$loginUser->email})"
-                ]);
-                DB::commit();
-                return new UserResource($user);
-            } catch (\Exception $ex) {
-                DB::rollBack();
-                return responseFailed($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $params = $request->all();
+
+            $birthdate = $params['birthdate'] ? Carbon::parse($params['birthdate'])->format('Y-m-d') : null;
+
+            $user = User::create([
+                'name' => $params['name'],
+                'lastname' => $params['lastname'],
+                'email' => $params['email'],
+                'document' => $params['document'],
+                'password' => Hash::make($params['password']),
+                'sex' => $params['sex']['value'],
+                'birthdate' => $birthdate,
+                'ipress_id' => $params['ipress']['id'] ?? null,
+            ]);
+
+            $role = Role::findOrFail($params['role']['id']);
+            $user->syncRoles($role->name);
+
+            $loginUser = Auth::user();
+            Log::create([
+                'user_id' => $user->id,
+                'operator_id' => $loginUser->id,
+                'title' => 'Create',
+                'content' => "Created by {$loginUser->name} ({$loginUser->email})"
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User created successfully',
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $ex->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

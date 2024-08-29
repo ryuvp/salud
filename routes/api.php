@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\UbigeoController;
+use App\Http\Controllers\Api\IpressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,5 +30,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/permissions', PermissionController::class);
     Route::apiResource('/roles', RoleController::class);
     Route::apiResource('/users', UserController::class);
+
+    //rutas para ubigeo Departamento, Provincia y Distrito
+    Route::get('/get-departments', [UbigeoController::class, 'getDepartments']);
+    Route::get('/get-provinces/{department_id}', [UbigeoController::class, 'getProvinces']);
+    Route::get('/get-districts/{province_id}', [UbigeoController::class, 'getDistricts']);
+
+    //rutas para ipress getIpressByUbigeo
+    Route::get('/get-ipress-by-ubigeo/{ubigeo}', [IpressController::class, 'getIpressByUbigeo']);
+
     Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions']);
 });

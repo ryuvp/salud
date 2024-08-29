@@ -48,11 +48,14 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'code',
+        'lastname',
+        'document',
         'email',
+        'phone',
         'password',
         'sex',
         'birthdate',
+        'ipress_id',
     ];
 
     /**
