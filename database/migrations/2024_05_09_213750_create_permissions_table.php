@@ -63,6 +63,7 @@ return new class extends Migration
             ['name' => 'superadmin', 'guard_name' => 'api'],
             ['name' => 'administrator', 'guard_name' => 'api'],
             ['name' => 'editor', 'guard_name' => 'api'],
+            ['name' => 'paciente', 'guard_name' => 'api'],
         ];
         foreach ($roles as $roleData) {
             Role::create($roleData);
@@ -89,6 +90,7 @@ return new class extends Migration
         $superadminRole = Role::where('name', 'superadmin')->first();
         $adminRole = Role::where('name', 'administrator')->first();
         $editorRole = Role::where('name', 'editor')->first();
+        //$patientRole = Role::where('name', 'paciente')->first();
 
         $permissions = Permission::all();
 

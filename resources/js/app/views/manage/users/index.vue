@@ -25,13 +25,13 @@ const selectedUsers = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const excludedRoles = ['superadmin'];
+const excludedRoles = ['superadmin', 'paciente'];
 const isDocumentChecked = ref(false);
 const isFieldsDisabled = ref(false);
 const isEditing = ref(false);
 const sexes = ref([
-    { name: 'Masculino', value: 0 },
-    { name: 'Femenino', value: 1 }
+    { name: 'Masculino', id: 0 },
+    { name: 'Femenino', id: 1 }
 ]);
 
 const userResource = new UserResource();
@@ -45,22 +45,41 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-    userResource.list().then((data) => {
-        users.value = data.data;
-    });
+    loadUsers();
 });
 
 const openNew = () => {
     user.value = {};
     submitted.value = false;
     userDialog.value = true;
-    //llamar a loaaroles
     loadRoles();
-    /*roleResource.get().then((data) => {
-        roles.value = data.data.filter(role => !excludedRoles.includes(role.name));
-    })*/
     ubigeoResource.departments().then((data) => {
         departments.value = data.filter(department => department.id == 10);
+    });
+}
+
+const loadUsers = async () => {
+    try {
+        const data = await userResource.list();        
+        users.value = data.data.map(user => {
+            if (user.roles && user.roles.length > 0) {
+                user.role = { id: user.roles[0].id, name: user.roles[0].name };
+            } else {
+                user.role = { id: 0, name: '' };
+            }
+            return user;
+        });
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los usuarios', life: 3000 });
+    }
+};
+const loadRoles = () => {
+    roleResource.get().then((data) => {
+        roles.value = data.data.filter(role => !excludedRoles.includes(role.name))
+        .map(role => ({
+            name: role.name,
+            id: role.id,
+        }));
     });
 }
 const loadProvinces = () => {
@@ -68,13 +87,6 @@ const loadProvinces = () => {
         provinces.value = data;
     });
 }
-
-const loadRoles = () => {
-    roleResource.get().then((data) => {
-        roles.value = data.data.filter(role => !excludedRoles.includes(role.name));
-    })
-}
-
 const loadDistricts = () => {
     ubigeoResource.districts(ubigeo.value.province.id).then((data) => {
         districts.value = data;
@@ -95,48 +107,52 @@ const hideDialog = () => {
 
 const saveUser = async () => {
     submitted.value = true;
-
-    if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
-        !user.value.password || user.value.password !== user.value.confirm_password ||
-        !user.value.sex || !user.value.role || !user.value.role.id) {
-        return;
+    if(!isEditing){
+        if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
+            !user.value.password || user.value.password !== user.value.confirm_password ||
+            (user.value.sex === null || user.value.sex === undefined) || !user.value.role || !user.value.role.id) {
+            return;
+        }
+    }else{
+        if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
+            (user.value.sex === null || user.value.sex === undefined) || !user.value.role) {
+            return;
+        }
     }
-    
     try {
-        const response = await userResource.store(user.value);
+        let response;
+        if (isEditing.value) {
+            response = await userResource.update(user.value.id, user.value);
+        } else {
+            response = await userResource.store(user.value);
+        }
+
         if (response) {
             const { status, message } = response;
-
             if (status === "success") {
                 user.value = {};
                 ubigeo.value = {};
                 userDialog.value = false;
-                try {
-                    const listResponse = await userResource.list();
-                    users.value = listResponse.data;
-                    toast.add({ severity: 'success', summary: 'Successful', detail: 'Usuario registrado', life: 3000 });
-                    
-                } catch (listError) {
-                    toast.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener la lista de usuarios', life: 3000 });
-                }
+                loadUsers();
+                toast.add({ severity: status, summary: status, detail: message, life: 3000 });
+                submitted.value = false;
+                isEditing.value = false;
             } else {
-                toast.add({ severity: 'error', summary: 'Error', detail: 'Error al registrar usuario', life: 3000 });
+                toast.add({ severity: status, summary: status, detail: message, life: 3000 });
             }
         }
     } catch (error) {
-        console.error("Error al enviar los datos:", error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al enviar los datos', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: error, life: 3000 });
     }
 }
 
+
 const editUser = (editUser) => {
-    //console.log(editUser);
     loadRoles();
     user.value = {...editUser}
     if (user.value.role && user.value.role.id) {
         user.value.role = user.value.role.id;
     }
-    console.log(user.value);
     userDialog.value = true;
     isEditing.value = true;
 }
@@ -147,7 +163,16 @@ const confirmDeleteUser = (deleteUser) => {
 }
 
 const deleteUser = () => {
-
+    userResource.destroy(user.value.id).then((data) => {
+        const { status, message } = data;
+        if (status === "success") {
+            deleteUserDialog.value = false;
+            loadUsers();
+            toast.add({ severity: status, summary: status, detail: message, life: 3000 });
+        } else {
+            toast.add({ severity: status, summary: status, detail: message, life: 3000 });
+        }
+    });
 }
 
 const findIndexById = (id) => {
@@ -264,13 +289,13 @@ const checkDocument = () => {
                     <Column field="role" header="Rol" :sortable="false" headerStyle="width:10%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Rol</span>
-                            {{ slotProps.data.roles.join(', ') }}
+                            {{ slotProps.data.roles.map(role => role.name).join(', ') }}
                         </template>
                     </Column>
                     <Column headerStyle="min-width:10rem;">
                         <template #body="slotProps">
-                            <div v-if="!slotProps.data.roles.includes('superadmin')">
-                                <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
+                            <div v-if="slotProps.data.role.id !== 1">
+                                    <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
                                     @click="editUser(slotProps.data)" />
                                 <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded
                                     @click="confirmDeleteUser(slotProps.data)" />
@@ -348,7 +373,7 @@ const checkDocument = () => {
                         </div>
                         <div class="field col">
                             <label for="sex">Sexo</label>
-                            <Dropdown id="sex" v-model="user.sex" :options="sexes" optionLabel="name" required="false" placeholder="Select a Sex" />
+                            <Dropdown id="sex" v-model="user.sex" :options="sexes" optionLabel="name" optionValue="id" required="false" placeholder="Select a Sex" />
                         </div>
                     </div>
                      <div class="formgrid grid">
@@ -376,13 +401,12 @@ const checkDocument = () => {
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="password">Contraseña</label>
-                            <InputText id="password" v-model.trim="user.password" required="true" autofocus :invalid="submitted && !user.password" />
-                            <small class="p-invalid" v-if="submitted && !user.password">Contraseña es requerido.</small>
-                        </div>
+                            <InputText id="password" v-model.trim="user.password" :required="isEditing" autofocus :invalid="submitted && (!user.password && !isEditing)" />
+                            <small class="p-invalid" v-if="submitted && (!user.password && !isEditing)">Contraseña es requerida.</small>                        </div>
                         <div class="field col">
                             <label for="confirm-password">Repita la contraseña</label>
-                            <InputText id="confirm-password" v-model.trim="user.confirm_password" required="true" autofocus :invalid="submitted && !user.confirm_password" />
-                            <small class="p-invalid" v-if="submitted && !user.confirm_password">Repita la contraseña.</small>
+                            <InputText id="confirm-password" v-model.trim="user.confirm_password" :required="isEditing" autofocus :invalid="submitted && (!user.confirm_password && !isEditing)" />
+                            <small class="p-invalid" v-if="submitted && (!user.confirm_password && !isEditing)">Repita la contraseña.</small>
                         </div>
                     </div>
                     <template #footer>
@@ -391,7 +415,7 @@ const checkDocument = () => {
                     </template>
                 </Dialog>
 
-                <!-- <Dialog v-model:visible="deleteuserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="user"
@@ -400,21 +424,10 @@ const checkDocument = () => {
                         >
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" text @click="deleteuserDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" text @click="deleteuser" />
+                        <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" text @click="deleteUser" />
                     </template>
-                </Dialog> -->
-
-                <!-- <Dialog v-model:visible="deleteusersDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="user">Are you sure you want to delete the selected users?</span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" text @click="deleteusersDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedusers" />
-                    </template>
-                </Dialog> -->
+                </Dialog>
             </div>
         </div>
     </div>

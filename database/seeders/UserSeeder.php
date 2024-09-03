@@ -31,16 +31,21 @@ class UserSeeder extends Seeder
 
         // Crear usuario normal de prueba
         $user = User::create([
-            'name' => 'Usuario de Prueba',
-            'lastname' => 'Usuario de Prueba',
-            'email' => 'user@example.com',
-            'document' => '0000000002',
-            'birthdate' => '2006-01-02 15:04:05',
-            'password' => Hash::make('password'),
+            'name' => 'Carlos Andrés',
+            'lastname' => 'Pérez García',
+            'email' => 'carlos.perez@example.com',
+            'document' => '12345678',
+            'sex' => 1,
+            'birthdate' => '1980-05-14',
+            'ipress_id' => 35174,
+            'phone' => '987654321',
+            'ubigeo' => '150101',
+            'address' => 'Av. Los Olivos 123, Lima',
+            'clinic_history' => 'HX12345',
         ]);
 
         // Asignar rol "user" al usuario normal
-        $userRole = Role::where('name', 'user')->first();
+        $userRole = Role::where('name', 'paciente')->first();
         $user->assignRole($userRole);
     }
 }

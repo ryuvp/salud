@@ -29,6 +29,28 @@ class UserResource extends Resource {
       params: params
     });
   }
+
+  storePatient(resource) {
+    return request({
+      url: '/patients',
+      method: 'post',
+      data: resource
+    })
+  }
+
+  patients() {
+    return request({
+      url: '/patients',
+      method: 'get',
+    })
+  }
+
+  follow() {
+    return request({
+      url: '/patients/follow',
+      method: 'get',
+    })
+  }
 }
 
 export { UserResource as default };

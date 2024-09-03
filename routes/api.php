@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UbigeoController;
 use App\Http\Controllers\Api\IpressController;
+use App\Http\Controllers\Api\Cie10Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/permissions', PermissionController::class);
     Route::apiResource('/roles', RoleController::class);
     Route::apiResource('/users', UserController::class);
+    Route::apiResource('/cie10', Cie10Controller::class);
+
+    //ruta para pacientes
+    Route::get('/patients', [UserController::class, 'getPatients']);
+    Route::post('/patients', [UserController::class, 'storePatient']);
+
+    //ruta para seguimiento al paciente
+    Route::get('/patients/follow', [UserController::class, 'getPatientsForFollow']);
 
     //rutas para ubigeo Departamento, Provincia y Distrito
     Route::get('/get-departments', [UbigeoController::class, 'getDepartments']);

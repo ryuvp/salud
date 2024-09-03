@@ -22,8 +22,8 @@ class User extends Authenticatable
      * Sex Map
      */
     const sexMap = [
-        0 => 'Male',
-        1 => 'Female'
+        0 => 'Masculino',
+        1 => 'Femenino'
     ];
 
     /**
@@ -56,6 +56,9 @@ class User extends Authenticatable
         'sex',
         'birthdate',
         'ipress_id',
+        'ubigeo',
+        'address',
+        'clinic_history',
     ];
 
     /**
@@ -108,5 +111,10 @@ class User extends Authenticatable
     public function ipress()
     {
         return $this->belongsTo(Ipress::class, 'ipress_id');
+    }
+
+    public function diagnostics()
+    {
+        return $this->hasMany(Diagnostic::class, 'user_id');
     }
 }

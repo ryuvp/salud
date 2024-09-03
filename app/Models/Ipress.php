@@ -16,4 +16,9 @@ class Ipress extends Model
     {
         return $this->hasMany(User::class, 'ipress_id');
     }
+
+    public function diagnostics()
+    {
+        return $this->hasMany(Diagnostic::class, 'ipress_id');
+    }
 }

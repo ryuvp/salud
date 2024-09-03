@@ -11,6 +11,8 @@ export const userStore = defineStore('user', {
       user: null,
       token: null,
       name: '',
+      lastname: '',
+      ipress: {},
       roles: [],
       permissions: [],
       routes: [],
@@ -43,7 +45,7 @@ export const userStore = defineStore('user', {
               reject('Verification failed, please Login again.')
             }
 
-            const {roles, name, permissions, id} = data
+            const {roles, name, lastname, ipress, permissions, id} = data
 
             if (!roles || roles.length <= 0) {
               reject('getInfo: roles must be a non-null array!')
@@ -54,7 +56,9 @@ export const userStore = defineStore('user', {
             this.$patch((state) => {
               state.id = id
               state.name = name
+              state.lastname = lastname
               state.roles = roles
+              state.ipress = ipress
               state.permissions = hierarchicalPermissions
               state.routes = permissions
             })

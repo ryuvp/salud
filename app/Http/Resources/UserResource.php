@@ -33,7 +33,10 @@ class UserResource extends JsonResource
             ]: null,
             'roles' => array_map(
                 function ($role) {
-                    return $role['name'];
+                    return [
+                        'id' => $role['id'],
+                        'name' => $role['name'],
+                    ];
                 },
                 $this->roles->toArray()
             ),

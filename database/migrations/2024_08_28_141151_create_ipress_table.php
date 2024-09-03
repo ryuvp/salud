@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('disa_code')->nullable();
             $table->string('disa_name')->nullable();
-            $table->string('red code')->nullable();
+            $table->string('red_code')->nullable();
             $table->string('red_name')->nullable();
             $table->string('microred_code')->nullable();
             $table->string('microred_name')->nullable();
