@@ -1,10 +1,10 @@
 //import request from '@/app/utils/request';
 import Resource from '@/app/api/resource';
 
-class Cie10Resource extends Resource {
+class DiagnosticResource extends Resource {
     constructor() {
-        super('cie10');
+        super('diagnostic');
     }
 }
 
-export { Cie10Resource as default }
+export { DiagnosticResource as default }

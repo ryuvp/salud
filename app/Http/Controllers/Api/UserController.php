@@ -401,7 +401,7 @@ class UserController extends BaseController
      *
      * @param User $user
      */
-    public function permissions(User $user)
+    /*public function permissions(User $user)
     {
         try {
             return responseSuccess([
@@ -411,5 +411,5 @@ class UserController extends BaseController
         } catch (\Exception $ex) {
             return responseFailed($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 }

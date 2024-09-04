@@ -3,6 +3,7 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import UserResource from '@/app/api/user';
 import Cie10Resource from '@/app/api/cie10';
+import DiagnosticResource from '@/app/api/diagnostic';
 import { userStore } from "@/app/store/user";
 
 import { useToast } from 'primevue/usetoast';
@@ -12,9 +13,11 @@ const toast = useToast();
 const patients = ref(null);
 const patient = ref({});
 const diagnostic = ref({});
+const medicament = ref({});
 const filters = ref({});
-const loading = ref(null);
 const diagnosticDialog = ref(null);
+const changeIpressDialog = ref(null);
+const medicamentDialog = ref(null);
 const cie10s = ref(null);
 const filteredCie10s = ref([]);
 
@@ -22,10 +25,11 @@ const expandedRows = ref([]);
 
 const patientResource = new UserResource();
 const cie10Resource = new Cie10Resource();
+const diagnosticResource = new DiagnosticResource();
 
 const store = userStore();
 const storedIpress = computed(() => {
-    return store;
+    return store.ipress.id;
 })
 
 onBeforeMount(() => {
@@ -76,13 +80,70 @@ const openNew = (user) => {
 
 const hideDialog = () => {
     diagnosticDialog.value = false;
+    filteredCie10s.value = [];
+}
+
+const hideChangeIpressDialog = () => {
+    changeIpressDialog.value = false;
+    hideDialog();
 }
 
 const saveDiagnostic = async () => {
+    //console.log(diagnostic.value);
+    const newDiagnostic = {
+        user_id: diagnostic.value.patient.id,
+        ipress_id: storedIpress.value,
+        cie10_id: diagnostic.value.cie10.id,
+    }
+    console.log(newDiagnostic);
+    
+    try {
+        let response;
+        response = await diagnosticResource.store(newDiagnostic);
+        if (response) {
+            toast.add({ severity: 'success', summary: 'Guardado', detail: 'Diagnostico guardado', life: 3000 });
+            hideDialog();
+            loadUsers();
+        }
+    }catch(error){
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al guardar el diagnostico', life: 3000 });
+    }
+}
 
-    console.log(storedIpress.value);
-    //console.log(diagnostic.value);    
+const confirmSaveDiagnostic = () => {
+
+    if(storedIpress.value != diagnostic.value.patient.ipress.id){
+        changeIpressDialog.value = true;
+        return;
+    }
+    else{      
+        saveDiagnostic();
+    }
 };
+
+const changeIpress = async () => {
+    const patientUpdate = {
+        ipress: {
+            id: storedIpress.value
+        }
+    };
+    try{
+        let response;
+        response = await patientResource.update(diagnostic.value.patient.id, patientUpdate);
+
+        if (response) {
+            changeIpressDialog.value = false;
+            saveDiagnostic();
+        }
+    }catch(error){
+        hideChangeIpressDialog();
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cambiar la IPRESS', life: 3000 });
+    }
+}
+
+const openNewMedicament = (data) => {
+    medicamentDialog.value = true;
+}
 </script>
 
 <template>
@@ -154,9 +215,9 @@ const saveDiagnostic = async () => {
                                     </template>
                                     <template v-slot:end>
                                         <Button label="Agregar Medicamento" icon="pi pi-plus" severity="success"
-                                            @click="exportCSV($event)" class="mr-2 inline-block" />
-                                        <Button label="Guardar" icon="pi pi-upload" severity="warning"
-                                            @click="exportCSV($event)" />
+                                            @click="openNewMedicament(diagnostic)" class="mr-2 inline-block" />
+                                        <!-- <Button label="Guardar" icon="pi pi-upload" severity="warning"
+                                            @click="exportCSV($event)" /> -->
                                     </template>
                                 </Toolbar>
                                 <DataTable :value="diagnostic.prescriptions">
@@ -221,7 +282,42 @@ const saveDiagnostic = async () => {
                     </div>
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" text="" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" text="" @click="saveDiagnostic" />
+                        <Button label="Save" icon="pi pi-check" text="" @click="confirmSaveDiagnostic" />
+                    </template>
+                </Dialog>
+                <Dialog v-model:visible="changeIpressDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                        <span>El paciente no se encuentra registrado en tu centro de salud, <br> <b>¿Deseas hacer el cambio?</b>?</span>
+                    </div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" text @click="hideChangeIpressDialog" />
+                        <Button label="Yes" icon="pi pi-check" text @click="changeIpress" />
+                    </template>
+                </Dialog>
+                <Dialog v-model:visible="medicamentDialog" :style="{ width: '850px' }" header="Nuevo Medicamento"
+                    :modal="true" class="p-fluid">
+                    <div class="field">
+                        <label><b>Meicamento:</b></label>
+                        <AutoComplete id="cie10" :dropdown="false" v-model="diagnostic.cie10" optionValue="id" :suggestions="filteredCie10s" @complete="searchCie10" field="name" placeholder="Seleccione un diagnóstico" />
+                    </div>
+                    <div class="formgrid grid">
+                    <div class="field col">
+                        <label><b>Cantidad:</b></label>
+                        <InputNumber v-model="medicament.quantity" mode="decimal" :minFractionDigits="2" />
+                    </div>
+                    <div class="field col">
+                        <label><b>Frecuencia:</b></label>
+                        <InputNumber v-model="medicament.frequency" mode="decimal" :minFractionDigits="2" />
+                    </div>
+                    </div>
+                    <div class="field">
+                        <label><b>Fecha de inicio:</b></label>
+                        <Calendar v-model="medicament.start_date" dateFormat="dd/mm/yy" />                
+                    </div>
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" text="" @click="hideDialog" />
+                        <Button label="Save" icon="pi pi-check" text="" @click="confirmSaveDiagnostic" />
                     </template>
                 </Dialog>
             </div>

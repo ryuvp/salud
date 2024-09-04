@@ -12,6 +12,12 @@ class Diagnostic extends Model
     protected $guard_name = 'api';
     protected $table = 'diagnostic';
 
+    protected $fillable = [
+        'user_id',
+        'cie10_id',
+        'ipress_id',
+    ];
+
     public function patient()
     {
         return $this->belongsTo(User::class, 'user_id');

@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UbigeoController;
 use App\Http\Controllers\Api\IpressController;
 use App\Http\Controllers\Api\Cie10Controller;
+use App\Http\Controllers\Api\DiagnosticController;
+use App\Http\Controllers\Api\MedicamentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/roles', RoleController::class);
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/cie10', Cie10Controller::class);
+    Route::apiResource('/diagnostic', DiagnosticController::class);
+    Route::apiResource('/medicament', MedicamentController::class);
 
     //ruta para pacientes
     Route::get('/patients', [UserController::class, 'getPatients']);
