@@ -4,28 +4,35 @@ import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import UserResource from '@/app/api/user';
 import Cie10Resource from '@/app/api/cie10';
 import DiagnosticResource from '@/app/api/diagnostic';
+import PrescriptionResource from '@/app/api/prescription';
+import MedicamentResource from '@/app/api/medicament';
 import { userStore } from "@/app/store/user";
 
 import { useToast } from 'primevue/usetoast';
+
 
 const toast = useToast();
 
 const patients = ref(null);
 const patient = ref({});
 const diagnostic = ref({});
-const medicament = ref({});
+const prescription = ref({});
 const filters = ref({});
 const diagnosticDialog = ref(null);
 const changeIpressDialog = ref(null);
 const medicamentDialog = ref(null);
 const cie10s = ref(null);
+const medicaments = ref(null);
 const filteredCie10s = ref([]);
+const filteredMedicament = ref([]);
 
 const expandedRows = ref([]);
 
 const patientResource = new UserResource();
 const cie10Resource = new Cie10Resource();
 const diagnosticResource = new DiagnosticResource();
+const medicamentResource = new MedicamentResource();
+const prescriptionResource = new PrescriptionResource();
 
 const store = userStore();
 const storedIpress = computed(() => {
@@ -55,11 +62,26 @@ const loadCie10s = async () => {
     }
 }
 
+const loadMedicaments = async () => {
+    try {
+        const data = await medicamentResource.list();
+        medicaments.value = data;
+    }catch (error){
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los medicaments', life: 3000 });
+    }
+}
+
 const searchCie10 = (event) => {
     const queryWords = event.query.toLowerCase().split(' ');
 
     filteredCie10s.value = cie10s.value.filter(cie10 =>
         queryWords.every(word => cie10.name.toLowerCase().includes(word))
+    );
+};
+const searchMedicament = (event) =>{
+    const queryWords = event.query.toLowerCase().split(' ');
+    filteredMedicament.value = medicaments.value.filter(medicament =>
+        queryWords.every(word => medicament.name.toLowerCase().includes(word))
     );
 };
 const initFilters = () => {
@@ -96,7 +118,7 @@ const saveDiagnostic = async () => {
         cie10_id: diagnostic.value.cie10.id,
     }
     console.log(newDiagnostic);
-    
+
     try {
         let response;
         response = await diagnosticResource.store(newDiagnostic);
@@ -116,7 +138,7 @@ const confirmSaveDiagnostic = () => {
         changeIpressDialog.value = true;
         return;
     }
-    else{      
+    else{
         saveDiagnostic();
     }
 };
@@ -141,8 +163,15 @@ const changeIpress = async () => {
     }
 }
 
-const openNewMedicament = (data) => {
+const openNewMedicament = (diagnostic) => {
     medicamentDialog.value = true;
+    prescription.value.diagnostic = diagnostic;
+
+    loadMedicaments();
+}
+
+const confirmSavePrescription = () => {
+    console.log(prescription.value);
 }
 </script>
 
@@ -216,8 +245,6 @@ const openNewMedicament = (data) => {
                                     <template v-slot:end>
                                         <Button label="Agregar Medicamento" icon="pi pi-plus" severity="success"
                                             @click="openNewMedicament(diagnostic)" class="mr-2 inline-block" />
-                                        <!-- <Button label="Guardar" icon="pi pi-upload" severity="warning"
-                                            @click="exportCSV($event)" /> -->
                                     </template>
                                 </Toolbar>
                                 <DataTable :value="diagnostic.prescriptions">
@@ -260,7 +287,7 @@ const openNewMedicament = (data) => {
                 <Dialog v-model:visible="diagnosticDialog" :style="{ width: '850px' }" header="Nuevo Diagnostico"
                     :modal="true" class="p-fluid">
                     <div class="field">
-                        <label><b>Paciente:</b> {{ patient.fullname }}</label>                        
+                        <label><b>Paciente:</b> {{ patient.fullname }}</label>
                     </div>
                     <div class="formgrid grid">
                     <div class="field col">
@@ -295,29 +322,30 @@ const openNewMedicament = (data) => {
                         <Button label="Yes" icon="pi pi-check" text @click="changeIpress" />
                     </template>
                 </Dialog>
+
                 <Dialog v-model:visible="medicamentDialog" :style="{ width: '850px' }" header="Nuevo Medicamento"
                     :modal="true" class="p-fluid">
                     <div class="field">
                         <label><b>Meicamento:</b></label>
-                        <AutoComplete id="cie10" :dropdown="false" v-model="diagnostic.cie10" optionValue="id" :suggestions="filteredCie10s" @complete="searchCie10" field="name" placeholder="Seleccione un diagnóstico" />
+                        <AutoComplete id="cie10" :dropdown="false" v-model="prescription.medicament" optionValue="id" :suggestions="filteredMedicament" @complete="searchMedicament" field="name" placeholder="Seleccione un medicamento" />
                     </div>
                     <div class="formgrid grid">
                     <div class="field col">
                         <label><b>Cantidad:</b></label>
-                        <InputNumber v-model="medicament.quantity" mode="decimal" :minFractionDigits="2" />
+                        <InputNumber v-model="prescription.quantity" mode="decimal" :minFractionDigits="2" />
                     </div>
                     <div class="field col">
                         <label><b>Frecuencia:</b></label>
-                        <InputNumber v-model="medicament.frequency" mode="decimal" :minFractionDigits="2" />
+                        <InputNumber v-model="prescription.frequency" mode="decimal" :minFractionDigits="2" />
                     </div>
                     </div>
                     <div class="field">
                         <label><b>Fecha de inicio:</b></label>
-                        <Calendar v-model="medicament.start_date" dateFormat="dd/mm/yy" />                
+                        <Calendar v-model="prescription.start_date" dateFormat="dd/mm/yy" />
                     </div>
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" text="" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" text="" @click="confirmSaveDiagnostic" />
+                        <Button label="Save" icon="pi pi-check" text="" @click="confirmSavePrescription" />
                     </template>
                 </Dialog>
             </div>

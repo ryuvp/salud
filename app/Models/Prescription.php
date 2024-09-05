@@ -13,6 +13,11 @@ class Prescription extends Model
 
     protected $table = 'prescription';
 
+    protected $fillable = [
+        'diagnostic_id',
+        'medicament_id',
+    ];
+
     public function diagnostic()
     {
         return $this->belongsTo(Diagnostic::class, 'diagnostic_id');
