@@ -1,14 +1,19 @@
 <template>
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
         <div class="flex flex-column align-items-center justify-content-center">
-            <img :src="logoUrl" alt="Sakai logo" class="mb-5 w-6rem flex-shrink-0" />
+            <img src="/public/layout/images/logo.png" alt="Sakai logo" class="mb-5 w-24rem flex-shrink-0" />
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-                <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius: 53px">
+                <div class="w-full surface-card py-5 px-5 sm:px-8" style="border-radius: 53px">
                     <form @submit.prevent="handleLogin">
-                        <div class="text-center mb-5">
-                            <img src="" alt="Image" height="50" class="mb-3" />
-                            <div class="text-900 text-3xl font-medium mb-3">Welcome, Isabel!</div>
-                            <span class="text-600 font-medium">Sign in to continue</span>
+                        <div class="text-center mb-0">
+                            <img src="/public/layout/images/logo_rsh.jpg" alt="RSH logo" class="mb-3 w-12rem" />
+                            <div class="text-900 text-3xl font-medium mb-3">Sistema de Gestion de Pacientes <br> ENT</div>
+                            <div v-if="loginError">
+                                <span class="text-600 font-medium text-red-500">Usuario o contraseña incorrectos</span>
+                            </div>
+                            <div v-else>
+                                <span class="text-600 font-medium">Iniciar Sesion para continuar</span>
+                            </div>
                         </div>
 
                         <div>
@@ -32,7 +37,7 @@
             </div>
         </div>
     </div>
-    <AppConfig simple />
+    <!-- <AppConfig simple /> -->
 </template>
 
 <script setup>
@@ -42,6 +47,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { csrf } from '@/app/api/auth';
 import { ref, computed, watch } from 'vue';
 import AppConfig from '@/app/views/layout/AppConfig.vue';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const { layoutConfig } = useLayout();
 const router = useRouter();
@@ -52,6 +60,7 @@ const loginForm = ref({
     email: '',
     password: '',
 });
+const loginError = ref(false);
 const redirect = ref(undefined);
 const otherQuery = ref({});
 const checked = ref(false);
@@ -66,7 +75,8 @@ const handleLogin = async () => {
         await useUserStore.login(loginForm.value);
         router.push({ path: redirect.value || '/intranet', query: otherQuery.value });
     } catch (error) {
-        console.error('Login failed', error);
+        //alert('error');
+        loginError.value = true;
     }
 };
 

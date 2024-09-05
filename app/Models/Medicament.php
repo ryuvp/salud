@@ -12,4 +12,6 @@ class Medicament extends Model
     protected $guard_name = 'api';
 
     protected $table = 'medicament';
+
+    protected $fillable = ['name'];
 }

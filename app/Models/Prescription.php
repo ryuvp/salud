@@ -16,6 +16,9 @@ class Prescription extends Model
     protected $fillable = [
         'diagnostic_id',
         'medicament_id',
+        'quantity',
+        'frequency',
+        'start_date',
     ];
 
     public function diagnostic()

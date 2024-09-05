@@ -21,12 +21,14 @@ const filters = ref({});
 const diagnosticDialog = ref(null);
 const changeIpressDialog = ref(null);
 const medicamentDialog = ref(null);
+const deleteMedicamentDialog = ref(null);
 const cie10s = ref(null);
 const medicaments = ref(null);
 const filteredCie10s = ref([]);
 const filteredMedicament = ref([]);
 
 const expandedRows = ref([]);
+const submitted = ref(false);
 
 const patientResource = new UserResource();
 const cie10Resource = new Cie10Resource();
@@ -165,13 +167,55 @@ const changeIpress = async () => {
 
 const openNewMedicament = (diagnostic) => {
     medicamentDialog.value = true;
+    submitted.value = false;
     prescription.value.diagnostic = diagnostic;
 
     loadMedicaments();
 }
 
-const confirmSavePrescription = () => {
-    console.log(prescription.value);
+const confirmSavePrescription = async () => {
+    submitted.value = true;
+    if(!prescription.value.medicament){
+        return;
+    }
+    try{
+        let response;
+        response = await prescriptionResource.store(prescription.value);
+        if (response) {
+            toast.add({ severity: 'success', summary: 'Guardado', detail: 'Prescripción guardada', life: 3000 });
+            hideMedicamentDialog();
+            loadUsers();
+        }
+    } catch(error){
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al guardar la prescripción', life: 3000 });
+    }
+}
+
+const hideMedicamentDialog = () => {
+    medicamentDialog.value = false;
+    prescription.value = {};
+    submitted.value = false;
+    filteredMedicament.value = [];
+}
+
+const confirmDeleteMedicament = (deleteMedicament) => {
+    console.log(deleteMedicament);
+
+    prescription.value = deleteMedicament;
+    deleteMedicamentDialog.value = true;    
+}
+
+const deleteMedicament = () => {
+    prescriptionResource.destroy(prescription.value.id).then((data) => {
+        const { status, message } = data;
+        if (status === "success") {
+            deleteMedicamentDialog.value = false;
+            loadUsers();
+            toast.add({ severity: status, summary: status, detail: message, life: 3000 });
+        } else {
+            toast.add({ severity: status, summary: status, detail: message, life: 3000 });
+        }
+    });
 }
 </script>
 
@@ -275,7 +319,7 @@ const confirmSavePrescription = () => {
                                     <Column headerStyle="min-width:10rem;">
                                         <template #body="slotProps">
                                             <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded
-                                                @click="confirmDeleteUser(slotProps.data)" />
+                                                @click="confirmDeleteMedicament(slotProps.data)" />
                                         </template>
                                     </Column>
                                 </DataTable>
@@ -327,7 +371,9 @@ const confirmSavePrescription = () => {
                     :modal="true" class="p-fluid">
                     <div class="field">
                         <label><b>Meicamento:</b></label>
-                        <AutoComplete id="cie10" :dropdown="false" v-model="prescription.medicament" optionValue="id" :suggestions="filteredMedicament" @complete="searchMedicament" field="name" placeholder="Seleccione un medicamento" />
+                        <AutoComplete id="cie10" :dropdown="false" v-model="prescription.medicament" optionValue="id" :suggestions="filteredMedicament" @complete="searchMedicament" 
+                        field="name" required="true" :invalid="submitted && !prescription.medicament" placeholder="Seleccione un medicamento" />
+                        <small class="p-invalid" v-if="submitted && !prescription.medicament">Medicamento es requerido.</small>
                     </div>
                     <div class="formgrid grid">
                     <div class="field col">
@@ -346,6 +392,16 @@ const confirmSavePrescription = () => {
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" text="" @click="hideDialog" />
                         <Button label="Save" icon="pi pi-check" text="" @click="confirmSavePrescription" />
+                    </template>
+                </Dialog>
+                <Dialog v-model:visible="deleteMedicamentDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                        <span>Are you sure you want to delete this medicament?</span>
+                    </div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" text @click="deleteMedicamentDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" text @click="deleteMedicament" />
                     </template>
                 </Dialog>
             </div>

@@ -17,9 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('medicament_id');
             $table->foreign('diagnostic_id')->references('id')->on('diagnostic')->onDelete('cascade');
             $table->foreign('medicament_id')->references('id')->on('medicament')->onDelete('cascade');
-            $table->integer('quantity');
-            $table->integer('frequency');
+            $table->integer('quantity')->nullable();
+            $table->integer('frequency')->nullable();
+            $table->date('start_date')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         $admin->assignRole($superadminRole);
 
         // Crear usuario normal de prueba
-        $user = User::create([
+        /*$user = User::create([
             'name' => 'Carlos Andrés',
             'lastname' => 'Pérez García',
             'email' => 'carlos.perez@example.com',
@@ -46,6 +46,6 @@ class UserSeeder extends Seeder
 
         // Asignar rol "user" al usuario normal
         $userRole = Role::where('name', 'paciente')->first();
-        $user->assignRole($userRole);
+        $user->assignRole($userRole);*/
     }
 }
