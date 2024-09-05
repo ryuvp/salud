@@ -26,9 +26,13 @@ class UserController extends BaseController
      */
     public function index()
     {
-        return UserResource::collection(User::with('ipress')->whereHas('roles', function ($query) {
-            $query->where('name', '!=', 'paciente');
-        })->get());
+        return UserResource::collection(
+            User::with('ipress')
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', '!=', 'paciente')
+                          ->where('name', '!=', 'superadmin');
+                })->get()
+        );
         //return UserResource::collection(User::with('ipress')->get());
     }
 

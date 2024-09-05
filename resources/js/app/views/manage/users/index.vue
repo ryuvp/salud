@@ -25,7 +25,7 @@ const selectedUsers = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const excludedRoles = ['superadmin', 'paciente'];
+const excludedRoles = ['superadmin', 'paciente', 'administrator'];
 const isDocumentChecked = ref(false);
 const isFieldsDisabled = ref(false);
 const isEditing = ref(false);
@@ -271,7 +271,7 @@ const checkDocument = () => {
                     <Column field="name" header="Nombre" :sortable="false" headerStyle="width:31%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nombre</span>
-                            {{ slotProps.data.name}}
+                            {{ slotProps.data.name}}, {{ slotProps.data.lastname }}
                         </template>
                     </Column>
                     <Column field="email" header="Correo" :sortable="false" headerStyle="width:14%; min-width:10rem;">
@@ -294,7 +294,7 @@ const checkDocument = () => {
                     </Column>
                     <Column headerStyle="min-width:10rem;">
                         <template #body="slotProps">
-                            <div v-if="slotProps.data.role.id !== 1">
+                            <div v-if="slotProps.data.role.id !== 1 && slotProps.data.role.id !== 2">
                                     <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
                                     @click="editUser(slotProps.data)" />
                                 <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded

@@ -29,23 +29,19 @@ class UserSeeder extends Seeder
         $superadminRole = Role::where('name', 'superadmin')->first();
         $admin->assignRole($superadminRole);
 
-        // Crear usuario normal de prueba
-        /*$user = User::create([
-            'name' => 'Carlos Andrés',
-            'lastname' => 'Pérez García',
-            'email' => 'carlos.perez@example.com',
-            'document' => '12345678',
-            'sex' => 1,
-            'birthdate' => '1980-05-14',
-            'ipress_id' => 35174,
-            'phone' => '987654321',
-            'ubigeo' => '150101',
-            'address' => 'Av. Los Olivos 123, Lima',
-            'clinic_history' => 'HX12345',
+        //Crear usuario normal de prueba
+        $user = User::create([
+            'name' => 'Eler',
+            'lastname' => 'Borneo Cantalicio',
+            'email' => 'eborneoc50@hotmail.com',
+            'document' => '40613742',
+            'sex' => 0,
+            'birthdate' => '2006-01-02',
+            'password' => Hash::make('123456789'),
         ]);
 
         // Asignar rol "user" al usuario normal
-        $userRole = Role::where('name', 'paciente')->first();
-        $user->assignRole($userRole);*/
+        $userRole = Role::where('name', 'administrator')->first();
+        $user->assignRole($userRole);
     }
 }
