@@ -71,17 +71,17 @@ return new class extends Migration
 
         $permissions = [
             ['name' => 'home', 'guard_name' => 'api', 'description' => 'inicio', 'route' => '', 'icon' => '', 'category' => 0, 'parent_id' => null],
-            ['name' => 'home.dashboard', 'guard_name' => 'api', 'description' => 'panel principal', 'route' => '/intranet/dashboard', 'icon' => 'pi pi-home', 'category' => 2, 'parent_id' => 1],
+            ['name' => 'home.dashboard', 'guard_name' => 'api', 'description' => 'panel principal', 'route' => '/dashboard', 'icon' => 'pi pi-home', 'category' => 2, 'parent_id' => 1],
             ['name' => 'manage', 'guard_name' => 'api', 'description' => 'administrar', 'route' => '', 'icon' => '', 'category' => 0, 'parent_id' => null],
-            ['name' => 'manage.users', 'guard_name' => 'api', 'description' => 'usuarios', 'route' => '/intranet/users', 'icon' => 'pi pi-users', 'category' => 2, 'parent_id' => 3],
-            ['name' => 'manage.roles', 'guard_name' => 'api', 'description' => 'roles', 'route' => '/intranet/roles', 'icon' => 'pi pi-lock', 'category' => 2, 'parent_id' => 3],
-            ['name' => 'manage.permissions', 'guard_name' => 'api', 'description' => 'permisos', 'route' => '/intranet/permissions', 'icon' => 'pi pi-ban', 'category' => 2, 'parent_id' => 3],
+            ['name' => 'manage.users', 'guard_name' => 'api', 'description' => 'usuarios', 'route' => '/users', 'icon' => 'pi pi-users', 'category' => 2, 'parent_id' => 3],
+            ['name' => 'manage.roles', 'guard_name' => 'api', 'description' => 'roles', 'route' => '/roles', 'icon' => 'pi pi-lock', 'category' => 2, 'parent_id' => 3],
+            ['name' => 'manage.permissions', 'guard_name' => 'api', 'description' => 'permisos', 'route' => '/permissions', 'icon' => 'pi pi-ban', 'category' => 2, 'parent_id' => 3],
             ['name' => 'profile', 'guard_name' => 'api', 'description' => 'perfil', 'route' => '', 'icon' => '', 'category' => 0, 'parent_id' => null],
-            ['name' => 'profile.user', 'guard_name' => 'api', 'description' => 'mi perfil', 'route' => '', 'icon' => 'pi pi-user', 'category' => 2, 'parent_id' => 7],           
+            ['name' => 'profile.user', 'guard_name' => 'api', 'description' => 'mi perfil', 'route' => '', 'icon' => 'pi pi-user', 'category' => 2, 'parent_id' => 7],
             ['name' => 'patient', 'guard_name' => 'api', 'description' => 'pacientes', 'route' => '', 'icon' => '', 'category' => 0, 'parent_id' => null],
-            ['name' => 'patient.register', 'guard_name' => 'api', 'description' => 'registro', 'route' => '/intranet/patients', 'icon' => 'pi pi-users', 'category' => 2, 'parent_id' => 9],
-            ['name' => 'patient.follow', 'guard_name' => 'api', 'description' => 'seguimiento', 'route' => '/intranet/patients/follow', 'icon' => 'pi pi-pencil', 'category' => 2, 'parent_id' => 9],
-            ['name' => 'patient.report', 'guard_name' => 'api', 'description' => 'reportes', 'route' => '/intranet/patients/report', 'icon' => 'pi pi-file', 'category' => 2, 'parent_id' => 9],
+            ['name' => 'patient.register', 'guard_name' => 'api', 'description' => 'registro', 'route' => '/patients', 'icon' => 'pi pi-users', 'category' => 2, 'parent_id' => 9],
+            ['name' => 'patient.follow', 'guard_name' => 'api', 'description' => 'seguimiento', 'route' => '/patients/follow', 'icon' => 'pi pi-pencil', 'category' => 2, 'parent_id' => 9],
+            ['name' => 'patient.report', 'guard_name' => 'api', 'description' => 'reportes', 'route' => '/patients/report', 'icon' => 'pi pi-file', 'category' => 2, 'parent_id' => 9],
         ];
         foreach ($permissions as $permissionData) {
             Permission::create($permissionData);

@@ -4,14 +4,14 @@ import { isLogged } from '@/app/utils/auth';
 
 const constantRoutes = [
     {
-        path: '/intranet/login',
+        path: '/login',
         component: () => import('../views/login/index.vue'),
         hidden: true
     },
     {
-        path: '/intranet',
+        path: '/',
         component: Layout,
-        redirect: '/intranet/dashboard',
+        redirect: '/dashboard',
         children: [
             {
                 path: 'dashboard',
@@ -70,10 +70,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (isLogged() || to.path === '/intranet/login') {
+    if (isLogged() || to.path === '/login') {
         next();
     } else {
-        next('/intranet/login');
+        next('/login');
     }
 });
 

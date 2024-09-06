@@ -73,7 +73,7 @@ const handleLogin = async () => {
     try {
         await csrf();
         await useUserStore.login(loginForm.value);
-        router.push({ path: redirect.value || '/intranet', query: otherQuery.value });
+        router.push({ path: redirect.value || '/', query: otherQuery.value });
     } catch (error) {
         //alert('error');
         loginError.value = true;

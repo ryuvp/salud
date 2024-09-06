@@ -13,12 +13,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['web'])->group(function () {
+/*Route::middleware(['web'])->group(function () {
     Route::get('/intranet/{any?}', function () {
         return view('app');
     })->where('any', '.*');
-});
+});*/
+
 
 Route::get('/{vue_capture?}', function () {
-    return view('web');
+    return view('app');
 })->where('vue_capture', '[\/\w\.-]*');
+
+/*Route::get('/{vue_capture?}', function () {
+    return view('web');
+})->where('vue_capture', '[\/\w\.-]*');*/
