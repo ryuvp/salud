@@ -112,13 +112,13 @@ const hideDialog = () => {
 const saveUser = async () => {
     submitted.value = true;
     if (!isEditing) {
-        if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
+        if (!user.value.name || !user.value.lastname || !user.value.document ||
             !user.value.password || user.value.password !== user.value.confirm_password ||
             (user.value.sex === null || user.value.sex === undefined)) {
             return;
         }
     } else {
-        if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
+        if (!user.value.name || !user.value.lastname || !user.value.document ||
             (user.value.sex === null || user.value.sex === undefined)) {
             return;
         }
@@ -301,7 +301,7 @@ const checkDocument = () => {
 
                 <Dialog v-model:visible="userDialog" :style="{ width: '720px' }" header="Detalles del usuario"
                     :modal="true" class="p-fluid">
-                    <div v-if="storedRoles.some(role => role.name === 'superadmin')">
+                    <div v-if="storedRoles.some(role => role.name === 'superadmin' || role.name === 'administrator')">
                         <div class="formgrid grid">
                             <div class="field col">
                                 <label for="department">Departamento</label>

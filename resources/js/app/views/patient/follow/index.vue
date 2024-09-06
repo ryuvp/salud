@@ -370,7 +370,7 @@ const deleteMedicament = () => {
                 <Dialog v-model:visible="medicamentDialog" :style="{ width: '850px' }" header="Nuevo Medicamento"
                     :modal="true" class="p-fluid">
                     <div class="field">
-                        <label><b>Meicamento:</b></label>
+                        <label><b>Medicamento:</b></label>
                         <AutoComplete id="cie10" :dropdown="false" v-model="prescription.medicament" optionValue="id" :suggestions="filteredMedicament" @complete="searchMedicament" 
                         field="name" required="true" :invalid="submitted && !prescription.medicament" placeholder="Seleccione un medicamento" />
                         <small class="p-invalid" v-if="submitted && !prescription.medicament">Medicamento es requerido.</small>

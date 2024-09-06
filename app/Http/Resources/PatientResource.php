@@ -52,26 +52,41 @@ class PatientResource extends JsonResource
 
     private function getDistrictByUbigeo($ubigeo)
     {
+        if (!$ubigeo) {
+            return null;
+        }
+
         $district = District::where('ubigeo_inei', $ubigeo)->first(['id', 'name']);
         return $district ? ['id' => $district->id, 'name' => $district->name] : null;
     }
+
     private function getProvinceByUbigeo($ubigeo)
     {
-        $province = District::where('ubigeo_inei', $ubigeo)
-            ->first()
-            ->province()
-            ->select('id', 'name')
-            ->first();
+        if (!$ubigeo) {
+            return null;
+        }
+
+        $district = District::where('ubigeo_inei', $ubigeo)->first();
+        if (!$district || !$district->province) {
+            return null;
+        }
+
+        $province = $district->province()->select('id', 'name')->first();
         return $province ? ['id' => $province->id, 'name' => $province->name] : null;
     }
+
     private function getDepartmentByUbigeo($ubigeo)
     {
-        $department = District::where('ubigeo_inei', $ubigeo)
-            ->first()
-            ?->province
-            ?->department
-            ?->select('id', 'name')
-            ->first();
+        if (!$ubigeo) {
+            return null;
+        }
+
+        $district = District::where('ubigeo_inei', $ubigeo)->first();
+        if (!$district || !$district->province || !$district->province->department) {
+            return null;
+        }
+
+        $department = $district->province->department()->select('id', 'name')->first();
         return $department ? ['id' => $department->id, 'name' => $department->name] : null;
     }
 }

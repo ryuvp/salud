@@ -233,6 +233,7 @@ class UserController extends BaseController
                     'phone' => $params['phone'],
                     'address' => $params['address'],
                     'clinic_history' => $params['clinic_history'],
+                    'ubigeo' => $params['ubigeo'],
                 ]);
             }
 
