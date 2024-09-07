@@ -60,7 +60,7 @@ class UserController extends BaseController
      */
     public function create()
     {
-        
+
     }
 
     /**
@@ -171,11 +171,6 @@ class UserController extends BaseController
                 'max:20',
                 Rule::unique('users', 'document')->whereNull('deleted_at')
             ],
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('users', 'email')->whereNull('deleted_at')
-            ],
             'phone' => 'nullable|string|max:15',
             'birthdate' => 'nullable|date',
             'ipress.id' => 'nullable|exists:ipress,id',
@@ -198,7 +193,7 @@ class UserController extends BaseController
             $loginUser = Auth::user();
 
             $params = $request->all();
-            $birthdate = $params['birthdate'] ? Carbon::parse($params['birthdate'])->format('Y-m-d') : null;            
+            $birthdate = $params['birthdate'] ? Carbon::parse($params['birthdate'])->format('Y-m-d') : null;
 
             // Verificar si el usuario existe pero está eliminado
             $existingUser = User::withTrashed()->where('document', $params['document'])->first();
@@ -210,14 +205,14 @@ class UserController extends BaseController
                 $existingUser->update([
                     'name' => $params['name'],
                     'lastname' => $params['lastname'],
-                    'email' => $params['email'],
+                    'email' => $params['email'] ?? null,
                     'sex' => $params['sex'],
                     'birthdate' => $birthdate,
                     'ipress_id' => $params['ipress']['id'] ?? $loginUser->ipress_id,
-                    'phone' => $params['phone'],
-                    'address' => $params['address'],
-                    'clinic_history' => $params['clinic_history'],
-                    'ubigeo' => $params['ubigeo'],
+                    'phone' => $params['phone'] ?? null,
+                    'address' => $params['address'] ?? null,
+                    'clinic_history' => $params['clinic_history'] ?? null,
+                    'ubigeo' => $params['ubigeo'] ?? null,
                 ]);
                 $user = $existingUser;
             } else {
@@ -225,15 +220,15 @@ class UserController extends BaseController
                 $user = User::create([
                     'name' => $params['name'],
                     'lastname' => $params['lastname'],
-                    'email' => $params['email'],
+                    'email' => $params['email'] ?? null,
                     'document' => $params['document'],
                     'sex' => $params['sex'],
                     'birthdate' => $birthdate,
                     'ipress_id' => $params['ipress']['id'] ?? $loginUser->ipress_id,
-                    'phone' => $params['phone'],
-                    'address' => $params['address'],
-                    'clinic_history' => $params['clinic_history'],
-                    'ubigeo' => $params['ubigeo'],
+                    'phone' => $params['phone'] ?? null,
+                    'address' => $params['address'] ?? null,
+                    'clinic_history' => $params['clinic_history'] ?? null,
+                    'ubigeo' => $params['ubigeo'] ?? null,
                 ]);
             }
 
@@ -261,6 +256,7 @@ class UserController extends BaseController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     /**
      * Display the specified resource.

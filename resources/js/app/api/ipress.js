@@ -1,19 +1,15 @@
 import request from '@/app/utils/request';
+import Resource from '@/app/api/resource';
 
-class IpressResource {
 
-    constructor(uri) {
-        this.uri = uri;
+class IpressResource extends Resource {
+
+    constructor() {
+        super('ipress');
     }
     ipress(ubigeo_inei) {
         return request({
             url: '/get-ipress-by-ubigeo/' + ubigeo_inei,
-            method: 'get',
-        })
-    }
-    get_ipress(id) {
-        return request({
-            url: '/ipress/' + id,
             method: 'get',
         })
     }

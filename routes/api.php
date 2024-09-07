@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     //Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+    Route::apiResource('/ipress', IpressController::class);
     Route::apiResource('/permissions', PermissionController::class);
     Route::apiResource('/roles', RoleController::class);
     Route::apiResource('/users', UserController::class);
@@ -38,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/diagnostic', DiagnosticController::class);
     Route::apiResource('/medicament', MedicamentController::class);
     Route::apiResource('/prescription', PrescriptionController::class);
+
 
     //ruta para pacientes
     Route::get('/patients', [UserController::class, 'getPatients']);

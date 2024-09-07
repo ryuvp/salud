@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Ipress;
 use Illuminate\Http\Request;
 
-class IpressController extends Controller
+class IpressController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return response()->json("hokl");
     }
 
     /**
@@ -37,7 +37,7 @@ class IpressController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return response()->json("hokl");
     }
 
     /**

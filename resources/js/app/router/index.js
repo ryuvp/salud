@@ -54,6 +54,12 @@ const constantRoutes = [
                 component: () => import('../views/patient/follow/index.vue'),
                 name: 'follow',
                 meta: { title: 'Patients Follow' }
+            },
+            {
+                path: 'patients/report',
+                component: () => import('../views/patient/report/index.vue'),
+                name: 'report',
+                meta: { title: 'Patients Report' }
             }
         ]
     },
