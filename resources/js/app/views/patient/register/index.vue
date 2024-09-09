@@ -22,8 +22,6 @@ const ubigeo = ref({});
 const ipress = ref({});
 const userDialog = ref(null);
 const deleteUserDialog = ref(null);
-const deleteUsersDialog = ref(null);
-const selectedUsers = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
@@ -176,25 +174,6 @@ const deleteUser = () => {
     });
 }
 
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < users.value.length; i++) {
-        if (users.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-const confirmDeleteSelected = () => {
-    deleteUsersDialog.value = true;
-}
-
-const deleteSelectedUsers = () => {
-
-}
-
 const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -206,21 +185,33 @@ const checkDocument = () => {
 
     isDocumentChecked.value = true;
     reniecResource.get(user.value.document).then((data) => {
-        const { nombres, apellido_paterno, apellido_materno } = data.data;
 
-        user.value.name = nombres;
-        user.value.lastname = `${apellido_paterno} ${apellido_materno}`;
-
-        isFieldsDisabled.value = true;
-        nextTick(() => {
-            const emailField = document.getElementById('email');
-            if (emailField) {
-                emailField.focus();
-            }
-        });
+        if (data.succes) {
+            const { nombres, apellido_paterno, apellido_materno } = data.data;
+            user.value.name = nombres;
+            user.value.lastname = `${apellido_paterno} ${apellido_materno}`;
+            isFieldsDisabled.value = true;
+            nextTick(() => {
+                const emailField = document.getElementById('email');
+                if (emailField) {
+                    emailField.focus();
+                }
+            });
+            return;
+        } else {
+            toast.add({ severity: 'warning', summary: 'Alerta', detail: data.message+' Ingrese los datos manualmente', life: 3000 });
+            isDocumentChecked.value = false;
+            isFieldsDisabled.value = false;
+            nextTick(() => {
+                const nameField = document.getElementById('name');
+                if (nameField) {
+                    nameField.focus();
+                }
+            });
+            return;
+        }
     }).catch(error => {
-        console.error("Error al consultar el documento:", error);
-        isDocumentChecked.value = false;
+        //
     });
 };
 </script>
@@ -336,7 +327,7 @@ const checkDocument = () => {
                         <div class="field col">
                             <label for="name">Nombres</label>
                             <InputText id="name" v-model.trim="user.name" :disabled="isFieldsDisabled || isEditing"
-                                required="true" autofocus :invalid="submitted && !user.name" />
+                                required="true" autofocus :invalid="submitted && !user.name" ref="nameField" />
                             <small class="p-invalid" v-if="submitted && !user.name">Nombre es requerido.</small>
                         </div>
                     </div>

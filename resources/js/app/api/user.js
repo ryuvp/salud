@@ -51,6 +51,13 @@ class UserResource extends Resource {
       method: 'get',
     })
   }
+  report(query){
+    return request({
+      url: '/patients/report',
+      method: 'get',
+      params: query
+    })
+  }
 }
 
 export { UserResource as default };

@@ -31,7 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     //Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-    Route::apiResource('/ipress', IpressController::class);
     Route::apiResource('/permissions', PermissionController::class);
     Route::apiResource('/roles', RoleController::class);
     Route::apiResource('/users', UserController::class);
@@ -39,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/diagnostic', DiagnosticController::class);
     Route::apiResource('/medicament', MedicamentController::class);
     Route::apiResource('/prescription', PrescriptionController::class);
-
+    Route::apiResource('/ipress', IpressController::class);
 
     //ruta para pacientes
     Route::get('/patients', [UserController::class, 'getPatients']);
@@ -47,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //ruta para seguimiento al paciente
     Route::get('/patients/follow', [UserController::class, 'getPatientsForFollow']);
+    Route::get('/patients/report', [UserController::class, 'getpatientsForReport']);
 
     //rutas para ubigeo Departamento, Provincia y Distrito
     Route::get('/get-departments', [UbigeoController::class, 'getDepartments']);
@@ -55,6 +55,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //rutas para ipress getIpressByUbigeo
     Route::get('/get-ipress-by-ubigeo/{ubigeo}', [IpressController::class, 'getIpressByUbigeo']);
+
+    //rutas para cie10 e ipress de la tabla Diagnostic
+    Route::get('/get-cie10', [DiagnosticController::class, 'getCie10']);
+    Route::get('/get-ipress', [DiagnosticController::class, 'getIpress']);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions']);
 });

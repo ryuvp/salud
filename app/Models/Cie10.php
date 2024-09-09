@@ -12,4 +12,9 @@ class Cie10 extends Model
     protected $guard_name = 'api';
 
     protected $table = 'cie10';
+
+    public function diagnostics()
+    {
+        return $this->hasMany(Diagnostic::class);
+    }
 }

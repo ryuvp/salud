@@ -55,6 +55,41 @@ class UserController extends BaseController
         return PatientFollowResource::collection($patients);
     }
 
+    public function getpatientsForReport(Request $request)
+    {
+        // Obtén los parámetros de búsqueda del request
+        $ipressId = $request->input('search.ipress.id', 0);
+        $cie10Id = $request->input('search.cie10.id', 0);
+    
+        // Construye la consulta base
+        $query = User::with(['diagnostics.prescriptions.medicament', 'diagnostics.cie10'])
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'paciente');
+            });
+    
+        // Aplica filtros condicionales
+        if ($ipressId != 0) {
+            $query->whereHas('diagnostics', function ($query) use ($ipressId) {
+                $query->whereHas('prescriptions', function ($query) use ($ipressId) {
+                    $query->where('ipress_id', $ipressId);
+                });
+            });
+        }
+    
+        if ($cie10Id != 0) {
+            $query->whereHas('diagnostics', function ($query) use ($cie10Id) {
+                $query->whereHas('cie10', function ($query) use ($cie10Id) {
+                    $query->where('id', $cie10Id);
+                });
+            });
+        }
+    
+        // Obtén los resultados
+        $patients = $query->get();
+    
+        return PatientFollowResource::collection($patients);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

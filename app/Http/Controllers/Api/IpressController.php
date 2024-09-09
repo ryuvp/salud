@@ -13,7 +13,13 @@ class IpressController extends BaseController
      */
     public function index()
     {
-        return response()->json("hokl");
+        // Realiza la consulta usando los criterios especificados
+        $ipress = Ipress::where('disa_code', '=', '14')
+                        ->where('red_code', '=', '66')
+                        ->get();
+                        
+        // Devuelve los resultados como JSON
+        return response()->json($ipress);
     }
 
     /**
@@ -37,7 +43,7 @@ class IpressController extends BaseController
      */
     public function show(string $id)
     {
-        return response()->json("hokl");
+        //
     }
 
     /**

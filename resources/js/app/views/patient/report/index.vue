@@ -1,48 +1,62 @@
 <script setup>
+import * as XLSX from 'xlsx';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import UserResource from '@/app/api/user';
-import IpressResource from '@/app/api/ipress';
+import DiagnosticResource from '@/app/api/diagnostic';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
 
 const users = ref(null);
-const search = ref({});
+const search = ref({
+    ipress: { id: 0, name: 'Todos' },
+    cie10: { id: 0, name: 'Todos' }
+});
 const ipresses = ref(null);
+const cie10s = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const filteredIpress = ref([]);
+const filteredCie10s = ref([]);
 
 const userResource = new UserResource();
-const ipressResource = new IpressResource();
+const diagnosticResource = new DiagnosticResource();
 
 onBeforeMount(() => {
     initFilters();
 });
 
 onMounted(() => {
-    loadUsers();
+    filterPatients();
     loadIpresses();
+    loadCie10s();
 });
 
-const loadUsers = async () => {
+const filterPatients = async () => {
     try {
-        const data = await userResource.patients();
+        const data = await userResource.report(search.value);
         users.value = data.data;
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los usuarios', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los pacientes', life: 3000 });
     }
-};
+}
 
 const loadIpresses = async () => {
-    try{
-        const data = await ipressResource.list();
-        ipresses.value = data;
-        console.log(ipresses.value);
-
-    } catch (error){
+    try {
+        const data = await diagnosticResource.ipress();
+        ipresses.value = [{ id: 0, name: 'Todos' }, ...data];
+    } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los centro de salud', life: 3000 });
+    }
+}
+
+const loadCie10s = async () => {
+    try {
+        const data = await diagnosticResource.cie10();
+        cie10s.value = [{ id: 0, name: 'Todos' }, ...data];
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los diagnosticos', life: 3000 });
     }
 }
 const initFilters = () => {
@@ -57,6 +71,59 @@ const searchIpress = (event) => {
         queryWords.every(word => ipress.name.toLowerCase().includes(word))
     );
 }
+
+const searchCie10 = (event) => {
+    const queryWords = event.query.toLowerCase().split(' ');
+    filteredCie10s.value = cie10s.value.filter(cie10 =>
+        queryWords.every(word => cie10.name.toLowerCase().includes(word))
+    );
+}
+
+const formatDataForExcel = (data) => {
+    return data.map((item, index) => {
+        // Extraer y concatenar los datos de los diagnósticos y medicamentos
+        const diagnosticsColumns = item.diagnostics.reduce((acc, diagnostic, index) => {
+            // Agregar columnas para el diagnóstico y medicamentos
+            acc[`DIAGNOSTICO_CIE10_${index + 1}`] = diagnostic.cie10;
+            acc[`MEDICAMENTO_${index + 1}`] = diagnostic.prescriptions
+                .map((prescription) => prescription.medicament)
+                .join(', ');
+
+            return acc;
+        }, {});
+
+        // Combinar los datos del paciente con las columnas de diagnósticos
+        return {
+            NRO: index + 1,
+            NOMBRE: item.name,
+            APELLIDO: item.lastname,
+            DOCUMENTO: item.document,
+            CORREO: item.email,
+            TELEFONO: item.phone,
+            SEXO: item.sex_format,
+            EDAD: item.age,
+            NACIMIENTO: item.birthdate,
+            HC: item.clinic_history,
+            UBIGEO: item.ubigeo,
+            DIRECCION: item.address,
+            MICRORED: item.ipress.microred_name?item.ipress.microred_name:'-',
+            IPRESS: item.ipress.name,
+            ...diagnosticsColumns, // Agregar columnas de diagnósticos dinámicamente
+        };
+    });
+};
+
+const exportExcel = () => {
+    const formattedData = formatDataForExcel(users.value);
+
+    // Convertir los datos formateados a un formato de hoja de cálculo
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
+
+    // Exportar el archivo Excel
+    XLSX.writeFile(workbook, 'reporte.xlsx');
+}
 </script>
 
 <template>
@@ -65,19 +132,26 @@ const searchIpress = (event) => {
             <div class="card">
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2">
-                            <label for="ipress"><b>IPRESS:</b></label>
-                            <AutoComplete id="ipress" :dropdown="false"
-                            v-model="search.ipress" optionValue="id" :suggestions="filteredIpress" @complete="searchIpress"
-                            field="name" placeholder="Seleccione un medicamento" />
+                        <div class="formgrid grid">
+                            <div class="field col">
+                                <label for="ipress">IPRESS:</label>
+                                <AutoComplete id="ipress" :dropdown="true" v-model="search.ipress" optionValue="id"
+                                    :suggestions="filteredIpress" @complete="searchIpress" field="name"
+                                    placeholder="Seleccione un medicamento" />
+                            </div>
+                            <div class="field col">
+                                <label for="cie10">CIE10:</label>
+                                <AutoComplete id="cie10" :dropdown="true" v-model="search.cie10" optionValue="id"
+                                    :suggestions="filteredCie10s" @complete="searchCie10" field="name"
+                                    placeholder="Seleccione un CIE10" />
+                            </div>
+                            <div class="field col"></div>
                         </div>
                     </template>
 
                     <template v-slot:end>
-                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import"
-                            chooseLabel="Import" class="mr-2 inline-block" disabled />
-                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)"
-                            disabled />
+                        <Button label="Filtar" icon="pi pi-search" severity="success" @click="filterPatients()" />
+                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportExcel()" />
                     </template>
                 </Toolbar>
 

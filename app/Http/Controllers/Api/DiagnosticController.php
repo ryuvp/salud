@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cie10;
 use App\Models\Diagnostic;
+use App\Models\Ipress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -79,5 +81,20 @@ class DiagnosticController extends Controller
     public function destroy(Diagnostic $diagnostic)
     {
         //
+    }
+    public function getCie10(){
+        $cie10 = Cie10::select('id', 'name')
+        ->whereHas('diagnostics')
+        ->get();
+
+        return response()->json($cie10);
+    }
+
+    public function getIpress(){
+        $ipress = Ipress::select('id', 'name')
+        ->whereHas('diagnostics')
+        ->get();
+
+        return response()->json($ipress);
     }
 }
