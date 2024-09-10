@@ -5,6 +5,8 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 import UserResource from '@/app/api/user';
 import DiagnosticResource from '@/app/api/diagnostic';
 import { useToast } from 'primevue/usetoast';
+import AppLoadingScreen from '@/app/views/layout/AppLoadingScreen.vue';
+
 
 const toast = useToast();
 
@@ -19,6 +21,7 @@ const dt = ref(null);
 const filters = ref({});
 const filteredIpress = ref([]);
 const filteredCie10s = ref([]);
+const loading = ref(false);
 
 const userResource = new UserResource();
 const diagnosticResource = new DiagnosticResource();
@@ -34,11 +37,14 @@ onMounted(() => {
 });
 
 const filterPatients = async () => {
+    loading.value = true;
     try {
         const data = await userResource.report(search.value);
         users.value = data.data;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los pacientes', life: 3000 });
+    } finally {
+        loading.value = false;
     }
 }
 
@@ -201,6 +207,7 @@ const exportExcel = () => {
                         </template>
                     </Column>
                 </DataTable>
+                <AppLoadingScreen v-if="loading"></AppLoadingScreen>
             </div>
         </div>
     </div>

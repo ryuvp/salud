@@ -30,7 +30,7 @@ class UserController extends BaseController
             User::with('ipress')
                 ->whereHas('roles', function ($query) {
                     $query->where('name', '!=', 'paciente')
-                          ->where('name', '!=', 'superadmin');
+                        ->where('name', '!=', 'superadmin');
                 })->get()
         );
         //return UserResource::collection(User::with('ipress')->get());
@@ -51,52 +51,48 @@ class UserController extends BaseController
         $patients = User::with(['diagnostics.prescriptions.medicament', 'diagnostics.cie10'])->whereHas('roles', function ($query) {
             $query->where('name', 'paciente');
         })
-        ->get();
+            ->get();
         return PatientFollowResource::collection($patients);
     }
 
     public function getpatientsForReport(Request $request)
     {
         // Obtén los parámetros de búsqueda del request
-        $ipressId = $request->input('search.ipress.id', 0);
-        $cie10Id = $request->input('search.cie10.id', 0);
-    
-        // Construye la consulta base
+        $filter = $request->all();
+
+        $ipressId = $filter['ipress']['id'] ?? null;
+        $cie10Id = $filter['cie10']['id'] ?? null;
+
+        // Construye la consulta base con los filtros condicionales
         $query = User::with(['diagnostics.prescriptions.medicament', 'diagnostics.cie10'])
             ->whereHas('roles', function ($query) {
                 $query->where('name', 'paciente');
             });
-    
-        // Aplica filtros condicionales
+
+        
+
         if ($ipressId != 0) {
-            $query->whereHas('diagnostics', function ($query) use ($ipressId) {
-                $query->whereHas('prescriptions', function ($query) use ($ipressId) {
-                    $query->where('ipress_id', $ipressId);
-                });
-            });
+            
+            $query->where('ipress_id', $ipressId); // Filtrar directamente por ipress_id del usuario
         }
-    
+
+        // Aplica filtros de CIE10 si es diferente de 0
         if ($cie10Id != 0) {
             $query->whereHas('diagnostics', function ($query) use ($cie10Id) {
-                $query->whereHas('cie10', function ($query) use ($cie10Id) {
-                    $query->where('id', $cie10Id);
-                });
+                $query->where('cie10_id', $cie10Id);
             });
         }
-    
-        // Obtén los resultados
+
+        // Obtén los resultados y asegúrate de filtrar correctamente
         $patients = $query->get();
-    
+
         return PatientFollowResource::collection($patients);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.

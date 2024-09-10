@@ -7,6 +7,7 @@ import UbigeoResource from '@/app/api/ubigeo';
 import IpressResource from '@/app/api/ipress';
 import { userStore } from "@/app/store/user";
 import { useToast } from 'primevue/usetoast';
+import AppLoadingScreen from '@/app/views/layout/AppLoadingScreen.vue';
 
 const toast = useToast();
 
@@ -32,6 +33,7 @@ const sexes = ref([
     { name: 'Masculino', id: 0 },
     { name: 'Femenino', id: 1 }
 ]);
+const loading = ref(false);
 
 const store = userStore();
 const storedRoles = computed(() => {
@@ -105,6 +107,9 @@ const hideDialog = () => {
     ubigeo.value = {};
     userDialog.value = false;
     submitted.value = false;
+    isFieldsDisabled.value = false;
+    isEditing.value = false;
+    isDocumentChecked.value = false;
 }
 
 const saveUser = async () => {
@@ -180,40 +185,52 @@ const initFilters = () => {
     };
 };
 
-const checkDocument = () => {
+const checkDocument = async () => {
     if (isDocumentChecked.value) return;
 
     isDocumentChecked.value = true;
-    reniecResource.get(user.value.document).then((data) => {
+    loading.value = true;
 
-        if (data.succes) {
+    try {
+        const data = await reniecResource.get(user.value.document);
+
+        if (data.success) {
             const { nombres, apellido_paterno, apellido_materno } = data.data;
             user.value.name = nombres;
             user.value.lastname = `${apellido_paterno} ${apellido_materno}`;
             isFieldsDisabled.value = true;
-            nextTick(() => {
-                const emailField = document.getElementById('email');
-                if (emailField) {
-                    emailField.focus();
-                }
-            });
-            return;
+            focusField('email');
         } else {
-            toast.add({ severity: 'warning', summary: 'Alerta', detail: data.message+' Ingrese los datos manualmente', life: 3000 });
+            showWarning(data.message);
             isDocumentChecked.value = false;
             isFieldsDisabled.value = false;
-            nextTick(() => {
-                const nameField = document.getElementById('name');
-                if (nameField) {
-                    nameField.focus();
-                }
-            });
-            return;
+            focusField('name');
         }
-    }).catch(error => {
-        //
+    } catch (error) {
+        // Manejo del error si es necesario
+    } finally {
+        loading.value = false;
+    }
+};
+
+const focusField = (fieldId) => {
+    nextTick(() => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.focus();
+        }
     });
 };
+
+const showWarning = (message) => {
+    toast.add({
+        severity: 'warn',
+        summary: 'Alerta',
+        detail: `${message} Ingrese los datos manualmente`,
+        life: 3000,
+    });
+};
+
 </script>
 
 <template>
@@ -407,5 +424,6 @@ const checkDocument = () => {
                 </Dialog>
             </div>
         </div>
+        <AppLoadingScreen v-if="loading"></AppLoadingScreen>
     </div>
 </template>
