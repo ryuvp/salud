@@ -21,10 +21,6 @@ onBeforeUnmount(() => {
     unbindOutsideClickListener();
 });
 
-const logoUrl = computed(() => {
-    return `/layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
-});
-
 const getUser = async () => {
   user.value = await useUserStore.getInfo()
 }
@@ -84,7 +80,7 @@ const isOutsideClicked = (event) => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <Chip :label="user.name" :image="'/demo/images/avatar/ivanmagalhaes.png'" class="mr-2"></Chip>
+            <Chip :label="user.name + ', ' + user.lastname" :image="'/layout/images/userh.png'" class="mr-2"></Chip>
             <button @click="onLogoutClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-power-off"></i>
                 <span>Logout</span>

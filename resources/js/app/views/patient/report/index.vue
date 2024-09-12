@@ -37,7 +37,6 @@ onMounted(() => {
 });
 
 const filterPatients = async () => {
-    loading.value = true;
     try {
         const data = await userResource.report(search.value);
         users.value = data.data;
@@ -46,6 +45,11 @@ const filterPatients = async () => {
     } finally {
         loading.value = false;
     }
+}
+
+const reload = () => {
+    loading.value = true;
+    filterPatients();
 }
 
 const loadIpresses = async () => {
@@ -156,8 +160,8 @@ const exportExcel = () => {
                     </template>
 
                     <template v-slot:end>
-                        <Button label="Filtar" icon="pi pi-search" severity="success" @click="filterPatients()" />
-                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportExcel()" />
+                        <Button label="Filtar" icon="pi pi-search" severity="success" @click="reload" />
+                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportExcel" />
                     </template>
                 </Toolbar>
 
