@@ -39,7 +39,7 @@ const constantRoutes = [
             },
             {
                 path: 'profile',
-                component: () => import('../views/profile/user/edit/index.vue'),
+                component: () => import('../views/profile/user/index.vue'),
                 name: 'profile',
                 meta: { title: 'Profile' }
             },
