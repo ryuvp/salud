@@ -1,8 +1,8 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount, nextTick } from 'vue';
-import  UserResource  from '@/app/api/user';
-import { RolesResource }  from '@/app/api/roles';
+import UserResource from '@/app/api/user';
+import { RolesResource } from '@/app/api/roles';
 import ReniecResource from '@/app/api/reniec';
 import UbigeoResource from '@/app/api/ubigeo';
 import IpressResource from '@/app/api/ipress';
@@ -60,7 +60,7 @@ const openNew = () => {
 
 const loadUsers = async () => {
     try {
-        const data = await userResource.list();        
+        const data = await userResource.list();
         users.value = data.data.map(user => {
             if (user.roles && user.roles.length > 0) {
                 user.role = { id: user.roles[0].id, name: user.roles[0].name };
@@ -76,10 +76,10 @@ const loadUsers = async () => {
 const loadRoles = () => {
     roleResource.get().then((data) => {
         roles.value = data.data.filter(role => !excludedRoles.includes(role.name))
-        .map(role => ({
-            name: role.name,
-            id: role.id,
-        }));
+            .map(role => ({
+                name: role.name,
+                id: role.id,
+            }));
     });
 }
 const loadProvinces = () => {
@@ -107,13 +107,13 @@ const hideDialog = () => {
 
 const saveUser = async () => {
     submitted.value = true;
-    if(!isEditing){
+    if (!isEditing) {
         if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
             !user.value.password || user.value.password !== user.value.confirm_password ||
             (user.value.sex === null || user.value.sex === undefined) || !user.value.role || !user.value.role.id) {
             return;
         }
-    }else{
+    } else {
         if (!user.value.name || !user.value.lastname || !user.value.document || !user.value.email ||
             (user.value.sex === null || user.value.sex === undefined) || !user.value.role) {
             return;
@@ -149,7 +149,7 @@ const saveUser = async () => {
 
 const editUser = (editUser) => {
     loadRoles();
-    user.value = {...editUser}
+    user.value = { ...editUser }
     if (user.value.role && user.value.role.id) {
         user.value.role = user.value.role.id;
     }
@@ -236,48 +236,45 @@ const checkDocument = () => {
                     </template>
 
                     <template v-slot:end>
-                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" disabled />
-                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" disabled />
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import"
+                            chooseLabel="Import" class="mr-2 inline-block" disabled />
+                        <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)"
+                            disabled />
                     </template>
                 </Toolbar>
 
-                <DataTable
-                    ref="dt"
-                    :value="users"
-                    v-model:selection="selectedUsers"
-                    dataKey="id"
-                    :paginator="true"
-                    :rows="10"
-                    :filters="filters"
+                <DataTable ref="dt" :value="users" v-model:selection="selectedUsers" dataKey="id" :paginator="true"
+                    :rows="10" :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
-                >
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Manage Users</h5>
                             <IconField iconPosition="left" class="block mt-2 md:mt-0">
                                 <InputIcon class="pi pi-search" />
-                                <InputText class="w-full sm:w-auto" v-model="filters['global'].value" placeholder="Search..." />
+                                <InputText class="w-full sm:w-auto" v-model="filters['global'].value"
+                                    placeholder="Search..." />
                             </IconField>
                         </div>
                     </template>
-                    <Column field="document" header="Documento" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="document" header="Documento" :sortable="false"
+                        headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Documento</span>
-                            {{ slotProps.data.document}}
+                            {{ slotProps.data.document }}
                         </template>
                     </Column>
                     <Column field="name" header="Nombre" :sortable="false" headerStyle="width:31%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nombre</span>
-                            {{ slotProps.data.name}}, {{ slotProps.data.lastname }}
+                            {{ slotProps.data.name }}, {{ slotProps.data.lastname }}
                         </template>
                     </Column>
                     <Column field="email" header="Correo" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Correo Electronico</span>
-                            {{ slotProps.data.email}}
+                            {{ slotProps.data.email }}
                         </template>
                     </Column>
                     <Column field="ipress" header="Ipress" :sortable="false" headerStyle="width:31%; min-width:10rem;">
@@ -295,7 +292,7 @@ const checkDocument = () => {
                     <Column headerStyle="min-width:10rem;">
                         <template #body="slotProps">
                             <div v-if="slotProps.data.role.id !== 1 && slotProps.data.role.id !== 2">
-                                    <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
+                                <Button icon="pi pi-pencil" class="mr-2" severity="success" rounded
                                     @click="editUser(slotProps.data)" />
                                 <Button icon="pi pi-trash" class="mt-2" severity="warning" rounded
                                     @click="confirmDeleteUser(slotProps.data)" />
@@ -304,109 +301,98 @@ const checkDocument = () => {
                     </Column>
                 </DataTable>
 
-                <Dialog v-model:visible="userDialog" :style="{ width: '720px' }" header="Detalles del usuario" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="userDialog" :style="{ width: '720px' }" header="Detalles del usuario"
+                    :modal="true" class="p-fluid">
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="role">Rol</label>
-                            <Dropdown id="role" v-model="user.role" :options="roles" optionLabel="name" optionValue="id" required="true"
-                            :invalid="submitted && !user.role" placeholder="Select a Role" />
+                            <Dropdown id="role" v-model="user.role" :options="roles" optionLabel="name" optionValue="id"
+                                required="true" :invalid="submitted && !user.role" placeholder="Select a Role" />
                             <small class="p-invalid" v-if="submitted && !user.role">Rol es requerido.</small>
                         </div>
-                        
+
                         <div class="field col">
                             <label for="document">Documento</label>
                             <InputText id="document" v-model.trim="user.document" required="true" autofocus
-                            :disabled="isEditing"
-                            :invalid="submitted && !user.document"
-                            @keyup.enter="checkDocument" />
+                                :disabled="isEditing" :invalid="submitted && !user.document"
+                                @keyup.enter="checkDocument" />
                             <small class="p-invalid" v-if="submitted && !user.document">Documento es requerido.</small>
                         </div>
                     </div>
                     <div class="field">
                         <label for="name">Nombres</label>
-                        <InputText 
-                            id="name" 
-                            v-model.trim="user.name" 
-                            :disabled="isFieldsDisabled || isEditing" 
-                            required="true" 
-                            autofocus 
-                            :invalid="submitted && !user.name" 
-                        />
+                        <InputText id="name" v-model.trim="user.name" :disabled="isFieldsDisabled || isEditing"
+                            required="true" autofocus :invalid="submitted && !user.name" />
                         <small class="p-invalid" v-if="submitted && !user.name">Nombre es requerido.</small>
                     </div>
                     <div class="field">
                         <label for="lastname">Apellidos</label>
-                        <InputText 
-                            id="lastname" 
-                            v-model.trim="user.lastname" 
-                            :disabled="isFieldsDisabled || isEditing" 
-                            required="true" 
-                            :invalid="submitted && !user.lastname" 
-                        />
+                        <InputText id="lastname" v-model.trim="user.lastname" :disabled="isFieldsDisabled || isEditing"
+                            required="true" :invalid="submitted && !user.lastname" />
                         <small class="p-invalid" v-if="submitted && !user.lastname">Apellidos es requerido.</small>
                     </div>
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="email">Email</label>
-                            <InputText 
-                                id="email" 
-                                v-model.trim="user.email" 
-                                required="true" 
-                                :invalid="submitted && !user.email" 
-                                ref="emailField" 
-                            />
+                            <InputText id="email" v-model.trim="user.email" required="true"
+                                :invalid="submitted && !user.email" ref="emailField" />
                             <small class="p-invalid" v-if="submitted && !user.email">Email es requerido.</small>
                         </div>
                         <div class="field col">
                             <label for="phone">Telefono</label>
-                            <InputText 
-                                id="phone" 
-                                v-model.trim="user.phone" 
-                                required="false" 
-                            />
+                            <InputText id="phone" v-model.trim="user.phone" required="false" />
                         </div>
                     </div>
-                     <div class="formgrid grid">
+                    <div class="formgrid grid">
                         <div class="field col">
                             <label for="birthdate">Fecha de nacimiento</label>
-                            <Calendar id="birthdate" v-model="user.birthdate" dateFormat="dd/mm/yy" required="false" autofocus />
+                            <Calendar id="birthdate" v-model="user.birthdate" dateFormat="dd/mm/yy" required="false"
+                                autofocus />
                         </div>
                         <div class="field col">
                             <label for="sex">Sexo</label>
-                            <Dropdown id="sex" v-model="user.sex" :options="sexes" optionLabel="name" optionValue="id" required="false" placeholder="Select a Sex" />
+                            <Dropdown id="sex" v-model="user.sex" :options="sexes" optionLabel="name" optionValue="id"
+                                required="false" placeholder="Select a Sex" />
                         </div>
                     </div>
-                     <div class="formgrid grid">
+                    <div class="formgrid grid">
                         <div class="field col">
                             <label for="department">Departamento</label>
                             <Dropdown id="department" v-model="ubigeo.department" @change="loadProvinces"
-                            :options="departments" optionLabel="name" placeholder="Select a Department" />
+                                :options="departments" optionLabel="name" placeholder="Select a Department" />
                         </div>
                         <div class="field col">
                             <label for="province">Provincia</label>
                             <Dropdown id="province" v-model="ubigeo.province" @change="loadDistricts"
-                            :options="provinces" optionLabel="name" placeholder="Select a Province" />
+                                :options="provinces" optionLabel="name" placeholder="Select a Province" />
                         </div>
                         <div class="field col">
                             <label for="district">Distrito</label>
                             <Dropdown id="district" v-model="ubigeo.district" @change="loadIpresses"
-                            :options="districts" optionLabel="name" placeholder="Select a District" />
+                                :options="districts" optionLabel="name" placeholder="Select a District" />
                         </div>
                     </div>
                     <div class="field">
                         <label for="ipress">Ipress</label>
-                        <Dropdown id="ipress" v-model="user.ipress" :options="ipresses" required="true" optionLabel="name" placeholder="Select an Ipress" />
+                        <Dropdown id="ipress" v-model="user.ipress" :options="ipresses" required="true"
+                            optionLabel="name" placeholder="Select an Ipress" />
                     </div>
 
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="password">Contraseña</label>
-                            <InputText id="password" v-model.trim="user.password" :required="isEditing" autofocus :invalid="submitted && (!user.password && !isEditing)" />
-                            <small class="p-invalid" v-if="submitted && (!user.password && !isEditing)">Contraseña es requerida.</small>                        </div>
+                            <InputText id="password" v-model.trim="user.password" :required="isEditing" autofocus
+                                :invalid="submitted && (!user.password && !isEditing)" />
+                            <small class="p-invalid" v-if="submitted && (!user.password && !isEditing)">Contraseña es
+                                requerida.</small>
+                        </div>
                         <div class="field col">
                             <label for="confirm-password">Repita la contraseña</label>
-                            <InputText id="confirm-password" v-model.trim="user.confirm_password" :required="isEditing" autofocus :invalid="submitted && (!user.confirm_password && !isEditing)" />
-                            <small class="p-invalid" v-if="submitted && (!user.confirm_password && !isEditing)">Repita la contraseña.</small>
+                            <InputText id="confirm-password" v-model.trim="user.confirm_password" :required="isEditing"
+                                autofocus :invalid="submitted && (!user.confirm_password && !isEditing)" />
+                            <small class="p-invalid" v-if="submitted && (!user.confirm_password && !isEditing)">Repita
+                                la
+                                contraseña.</small>
                         </div>
                     </div>
                     <template #footer>
@@ -418,10 +404,7 @@ const checkDocument = () => {
                 <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="user"
-                            >Are you sure you want to delete <b>{{ user.name }}</b
-                            >?</span
-                        >
+                        <span v-if="user">Are you sure you want to delete <b>{{ user.name }}</b>?</span>
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />

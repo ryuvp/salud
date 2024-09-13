@@ -16,14 +16,21 @@ export const userStore = defineStore('user', {
       roles: [],
       permissions: [],
       routes: [],
+      document: null,
+      email: null,
+      phone: null,
+      sex_format: null,
+      sex: null,
+      age: null,
+      birthdate: null,
     }
   },
   actions: {
     // user login
     login(userInfo) {
-      const {email, password} = userInfo
+      const {document, password} = userInfo
       return new Promise((resolve, reject) => {
-        login({email: email.trim(), password: password})
+        login({document: document.trim(), password: password})
           .then(response => {
             setToken(response.token)
             resolve()
@@ -44,7 +51,7 @@ export const userStore = defineStore('user', {
               reject('Verification failed, please Login again.')
             }
 
-            const {roles, name, lastname, ipress, permissions, id} = data
+            const {roles, name, lastname, ipress, permissions, id, document, email, phone, sex_format, sex, age, birthdate} = data
 
             if (!roles || roles.length <= 0) {
               reject('getInfo: roles must be a non-null array!')
@@ -60,11 +67,18 @@ export const userStore = defineStore('user', {
               state.ipress = ipress
               state.permissions = hierarchicalPermissions
               state.routes = permissions
+              state.document = document
+              state.email = email
+              state.phone = phone
+              state.sex_format = sex_format
+              state.sex = sex
+              state.age = age
+              state.birthdate = birthdate
             })
             resolve(data)
           })
           .catch(error => {
-            console.log(error)
+            console.error(error)
             reject(error)
           })
       })
@@ -81,6 +95,7 @@ export const userStore = defineStore('user', {
             removeToken()
             resetRouter()
             resolve()
+            window.location.reload()
           })
           .catch(error => {
             reject(error)

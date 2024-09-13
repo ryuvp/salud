@@ -18,7 +18,7 @@ class AuthController extends BaseController
      */
     public function login(Request $request)
     {
-        $request->validate([
+        /*$request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
@@ -32,6 +32,22 @@ class AuthController extends BaseController
 
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
+        ]);*/
+        $request->validate([
+            'document' => 'required|string',
+            'password' => 'required|string', 
+        ]);
+    
+        // Intentar autenticar al usuario usando el campo document en lugar de email
+        if (Auth::attempt(['document' => $request->document, 'password' => $request->password])) {
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json(['token' => $token], 200);
+        }
+    
+        throw ValidationException::withMessages([
+            'document' => ['The provided credentials are incorrect.'],
         ]);
     }
 

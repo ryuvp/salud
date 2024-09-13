@@ -1,5 +1,5 @@
-import { asyncRoutes, constantRoutes } from '@/app/router';
-import {defineStore} from "pinia";
+import { constantRoutes } from '@/app/router';
+import { defineStore } from 'pinia';
 
 /**
  * Check if it matches the current user right by meta.role
@@ -33,17 +33,17 @@ function canAccess(roles, permissions, route) {
 
 /**
  * Find all routes of this role
- * @param routes asyncRoutes
+ * @param routes constantRoutes
  * @param roles
  */
-function filterAsyncRoutes(routes, roles, permissions) {
+function filterConstantRoutes(routes, roles, permissions) {
   const res = [];
 
   routes.forEach(route => {
     const tmp = { ...route };
     if (canAccess(roles, permissions, tmp)) {
       if (tmp.children) {
-        tmp.children = filterAsyncRoutes(
+        tmp.children = filterConstantRoutes(
           tmp.children,
           roles,
           permissions
@@ -67,18 +67,16 @@ export const permissionStore = defineStore('permission', {
     generateRoutes(roles, permissions) {
       return new Promise(resolve => {
         let accessedRoutes;
-        if (roles.includes('admin')) {
-          accessedRoutes = asyncRoutes || [];
-        } else {
-          accessedRoutes = filterAsyncRoutes(asyncRoutes, roles, permissions);
-        }
+
+        // Aquí usamos solo constantRoutes
+        accessedRoutes = filterConstantRoutes(constantRoutes, roles, permissions);
 
         this.$patch((state) => {
           state.addRoutes = accessedRoutes;
           state.routes = constantRoutes.concat(accessedRoutes);
-        })
+        });
         resolve(accessedRoutes);
       });
     }
   }
-})
+});

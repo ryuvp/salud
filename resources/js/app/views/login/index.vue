@@ -17,11 +17,11 @@
                         </div>
 
                         <div>
-                            <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
-                            <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-30rem mb-5" style="padding: 1rem" v-model="loginForm.email" />
+                            <label for="document1" class="block text-900 text-xl font-medium mb-2">N° Documento</label>
+                            <InputText id="document1" type="text" placeholder="N° Documento" class="w-full md:w-30rem mb-5" style="padding: 1rem" v-model="loginForm.document" />
 
-                            <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
-                            <Password id="password1" v-model="loginForm.password" placeholder="Password" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>
+                            <label for="password1" class="block text-900 font-medium text-xl mb-2">Contraseña</label>
+                            <Password id="password1" v-model="loginForm.password" placeholder="Contraseña" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>
 
                             <div class="flex align-items-center justify-content-between mb-5 gap-5">
                                 <div class="flex align-items-center">
@@ -46,18 +46,15 @@ import { userStore } from '@/app/store/user';
 import { useRoute, useRouter } from 'vue-router';
 import { csrf } from '@/app/api/auth';
 import { ref, computed, watch } from 'vue';
-import AppConfig from '@/app/views/layout/AppConfig.vue';
-import { useToast } from 'primevue/usetoast';
+//import AppConfig from '@/app/views/layout/AppConfig.vue';
 
-const toast = useToast();
-
-const { layoutConfig } = useLayout();
+//const { layoutConfig } = useLayout();
 const router = useRouter();
 const route = useRoute();
 const useUserStore = userStore();
 
 const loginForm = ref({
-    email: '',
+    document: '',
     password: '',
 });
 const loginError = ref(false);
@@ -65,17 +62,12 @@ const redirect = ref(undefined);
 const otherQuery = ref({});
 const checked = ref(false);
 
-const logoUrl = computed(() => {
-    return `/layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
-});
-
 const handleLogin = async () => {
     try {
         await csrf();
         await useUserStore.login(loginForm.value);
         router.push({ path: redirect.value || '/', query: otherQuery.value });
     } catch (error) {
-        //alert('error');
         loginError.value = true;
     }
 };

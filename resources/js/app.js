@@ -2,6 +2,10 @@ import { createApp } from 'vue';
 import App from './app/App.vue';
 import { createPinia } from 'pinia';
 import router from './app/router';
+import { OhVueIcon, addIcons } from 'oh-vue-icons';
+import { HiIdentification, MdEmailOutlined, PrPhone, BiGenderFemale, BiGenderMale, MdUpdate } from 'oh-vue-icons/icons';
+
+addIcons(HiIdentification, MdEmailOutlined, PrPhone, BiGenderFemale, BiGenderMale, MdUpdate );
 
 import PrimeVue from 'primevue/config';
 import AutoComplete from 'primevue/autocomplete';
@@ -225,5 +229,6 @@ app.component('TreeSelect', TreeSelect);
 app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
+app.component('v-icon', OhVueIcon);
 
 app.mount('#app');

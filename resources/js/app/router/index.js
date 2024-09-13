@@ -6,12 +6,14 @@ const constantRoutes = [
     {
         path: '/login',
         component: () => import('../views/login/index.vue'),
-        hidden: true
+        hidden: true,
+        meta: { constant: true }
     },
     {
         path: '/',
         component: Layout,
         redirect: '/dashboard',
+        meta: { constant: true },
         children: [
             {
                 path: 'dashboard',
@@ -66,10 +68,6 @@ const constantRoutes = [
     { path: '/:pathMatch(.*)*', name: 'NotFound', redirect: '/404', hidden: true }
 ];
 
-const asyncRoutes = [
-    // Define aquí las rutas que son cargadas de forma asíncrona
-];
-
 const router = createRouter({
     history: createWebHistory(),
     routes: constantRoutes
@@ -85,11 +83,12 @@ router.beforeEach((to, from, next) => {
 
 export function resetRouter() {
     router.getRoutes().forEach(route => {
-        if (!route.meta.constant) {
+        // Excluye las rutas que tienen `meta.constant` o las rutas que no tienen nombre
+        if (!route.meta.constant && route.name) {
             router.removeRoute(route.name);
         }
     });
 }
 
-export { constantRoutes, asyncRoutes };
+export { constantRoutes };
 export default router;

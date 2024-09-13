@@ -69,10 +69,10 @@ class UserController extends BaseController
                 $query->where('name', 'paciente');
             });
 
-        
+
 
         if ($ipressId != 0) {
-            
+
             $query->where('ipress_id', $ipressId); // Filtrar directamente por ipress_id del usuario
         }
 
@@ -315,7 +315,7 @@ class UserController extends BaseController
             'name' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'document' => "nullable|string|max:20|unique:users,document,$id",
-            'email' => "nullable|email|unique:users,email,$id",
+            'email' => "nullable|email",
             'password' => 'nullable|min:6',
             'confirm_password' => 'same:password',
             'phone' => 'nullable|string|max:15',
@@ -336,9 +336,21 @@ class UserController extends BaseController
             DB::beginTransaction();
 
             $user = User::findOrFail($id);
-
             $params = $request->all();
+            $emailChanged = false;
 
+            // Verificar si el email ya existe y no pertenece al usuario actual
+            if (!empty($params['email']) && $params['email'] !== $user->email) {
+                $existingUser = User::where('email', $params['email'])->first();
+                if ($existingUser && $existingUser->id !== $user->id) {
+                    // Si el correo ya existe en otro usuario, no lo cambiamos y establecemos una bandera
+                    $emailChanged = true;
+                } else {
+                    $user->email = $params['email'];
+                }
+            }
+
+            // Actualizar otros campos si cambian
             if (!empty($params['name']) && $params['name'] !== $user->name) {
                 $user->name = $params['name'];
             }
@@ -351,11 +363,18 @@ class UserController extends BaseController
                 $user->document = $params['document'];
             }
 
-            if (!empty($params['email']) && $params['email'] !== $user->email) {
-                $user->email = $params['email'];
+            if (array_key_exists('phone', $params)) {
+                if ($params['phone'] === '') {
+                    if ($user->phone !== '') {
+                        $user->phone = '';
+                    }
+                } elseif ($params['phone'] !== $user->phone) {
+                    $user->phone = $params['phone'];
+                }
             }
 
-            if (!empty($params['password'])) {
+            // No cambiar la contraseña si el email ya existe
+            if (!$emailChanged && !empty($params['password'])) {
                 $user->password = Hash::make($params['password']);
             }
 
@@ -381,10 +400,12 @@ class UserController extends BaseController
                 }
             }
 
+            // Guardar cambios si hay modificaciones
             if ($user->isDirty()) {
                 $user->save();
             }
 
+            // Registrar la operación
             $loginUser = Auth::user();
             Log::create([
                 'user_id' => $user->id,
@@ -394,9 +415,16 @@ class UserController extends BaseController
             ]);
 
             DB::commit();
+
+            // Determinar el mensaje y el estado basado en si el correo fue cambiado o no
+            $responseStatus = $emailChanged ? 'warn' : 'success';
+            $message = $emailChanged
+                ? 'Datos actualizado. Pero el correo no fue actualizado porque ya existe.'
+                : 'Datos actualizado correctamente';
+
             return response()->json([
-                'status' => 'success',
-                'message' => 'User updated successfully',
+                'status' => $responseStatus,
+                'message' => $message,
             ], Response::HTTP_OK);
         } catch (\Exception $ex) {
             DB::rollBack();
@@ -406,8 +434,6 @@ class UserController extends BaseController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-
     /**
      * Remove the specified resource from storage.
      */

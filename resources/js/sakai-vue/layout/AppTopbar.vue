@@ -1,33 +1,40 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useLayout } from '@/sakai-vue/layout/composables/layout';
+import { useLayout } from '@/app/views/layout/composables/layout';
 import { useRouter } from 'vue-router';
+import { userStore } from '@/app/store/user';
 
 const { layoutConfig, onMenuToggle } = useLayout();
+const useUserStore = userStore();
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
 const router = useRouter();
+const user = ref({});
 
 onMounted(() => {
     bindOutsideClickListener();
+    getUser();
 });
 
 onBeforeUnmount(() => {
     unbindOutsideClickListener();
 });
 
-const logoUrl = computed(() => {
-    return `/layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
-});
+const getUser = async () => {
+  user.value = await useUserStore.getInfo();
+};
 
 const onTopBarMenuButton = () => {
     topbarMenuActive.value = !topbarMenuActive.value;
 };
-const onSettingsClick = () => {
-    topbarMenuActive.value = false;
-    router.push('/documentation');
+
+const onLogoutClick = async () => {
+    await useUserStore.logout().then(() => {
+        router.push('/login');
+    });
 };
+
 const topbarMenuClasses = computed(() => {
     return {
         'layout-topbar-menu-mobile-active': topbarMenuActive.value
@@ -44,12 +51,14 @@ const bindOutsideClickListener = () => {
         document.addEventListener('click', outsideClickListener.value);
     }
 };
+
 const unbindOutsideClickListener = () => {
     if (outsideClickListener.value) {
         document.removeEventListener('click', outsideClickListener);
         outsideClickListener.value = null;
     }
 };
+
 const isOutsideClicked = (event) => {
     if (!topbarMenuActive.value) return;
 
@@ -63,10 +72,9 @@ const isOutsideClicked = (event) => {
 <template>
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo">
-            <img :src="logoUrl" alt="logo" />
-            <span>SAKAI</span>
+            <img src="/public/layout/images/logo.png" alt="logo" />
+            <span>RENOPAC</span>
         </router-link>
-
         <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
             <i class="pi pi-bars"></i>
         </button>
@@ -76,17 +84,10 @@ const isOutsideClicked = (event) => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <button @click="onTopBarMenuButton()" class="p-link layout-topbar-button">
-                <i class="pi pi-calendar"></i>
-                <span>Calendar</span>
-            </button>
-            <button @click="onTopBarMenuButton()" class="p-link layout-topbar-button">
-                <i class="pi pi-user"></i>
-                <span>Profile</span>
-            </button>
-            <button @click="onSettingsClick()" class="p-link layout-topbar-button">
-                <i class="pi pi-cog"></i>
-                <span>Settings</span>
+            <Chip :label="user.name + ', ' + user.lastname" :image="'/layout/images/userh.png'" class="mr-2"></Chip>
+            <button @click="onLogoutClick()" class="p-link layout-topbar-button">
+                <i class="pi pi-power-off"></i>
+                <span>Logout</span>
             </button>
         </div>
     </div>

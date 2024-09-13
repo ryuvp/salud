@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -25,12 +26,13 @@ class UserResource extends JsonResource
             'sex' => $this->sex,
             'sex_format' => $this->sex_format,
             'age' => $this->age,
-            'birthdate' => $this->birthdate,
+            'birthdate' => $this->formatBirthdate($this->birthdate),
             'ipress' => $this->ipress ? [
                 'id' => $this->ipress->id,
                 'code' => $this->ipress->code,
                 'name' => $this->ipress->name,
-            ]: null,
+                'address' => $this->ipress->address,
+            ] : null,
             'roles' => array_map(
                 function ($role) {
                     return [
@@ -52,5 +54,10 @@ class UserResource extends JsonResource
                 $this->getAllPermissions()->toArray()
             ),
         ];
+    }
+
+    private function formatBirthdate($birthdate): ?string
+    {
+        return $birthdate ? Carbon::parse($birthdate)->format('d/m/Y') : null;
     }
 }
