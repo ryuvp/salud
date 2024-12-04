@@ -32,7 +32,7 @@ jobs:
     - name: Install npm dependencies and build assets
       run: |
         npm install
-        npm run prod  # Compila los activos de Laravel con Vite o Mix
+        npm run build  # Compila los activos de Laravel con Vite o Mix
 
     - name: Deploy to Server
       env:
