@@ -38,7 +38,7 @@ jobs:
       env:
         HOST: ${{ secrets.SERVER_HOST }}  # Dirección del servidor
         USER: ${{ secrets.SERVER_USER }}  # Usuario SSH en el servidor
-        KEY: ${{ secrets.SERVER_SSH_KEY }}  # Clave SSH almacenada en los secrets de GitHub
+        KEY: ${{ secrets.DEPLOY_SSH_KEY }}  # Clave SSH almacenada en los secrets de GitHub
       run: |
         echo "$KEY" > private_key.pem  # Crea un archivo de clave privada temporal
         chmod 600 private_key.pem
