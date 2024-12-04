@@ -10,29 +10,29 @@ jobs:
     runs-on: ubuntu-latest  # Utilizamos un runner de GitHub con Ubuntu
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3  # Extrae el código del repositorio
+    # - name: Checkout code
+    #   uses: actions/checkout@v3  # Extrae el código del repositorio
 
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'  # Configura PHP 8.1 (puedes ajustarlo si es necesario)
-        extensions: mbstring, bcmath, curl, zip, gd  # Extensiones necesarias para Laravel
+    # - name: Set up PHP
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: '8.1'  # Configura PHP 8.1 (puedes ajustarlo si es necesario)
+    #     extensions: mbstring, bcmath, curl, zip, gd  # Extensiones necesarias para Laravel
 
-    - name: Set up Node.js 20.12.2
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20.12.2'  # Configura Node.js 20.12.2
+    # - name: Set up Node.js 20.12.2
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: '20.12.2'  # Configura Node.js 20.12.2
 
-    - name: Install Composer dependencies
-      run: |
-        curl -sS https://getcomposer.org/installer | php
-        php composer.phar install --no-dev --optimize-autoloader  # Instala dependencias sin las de desarrollo
+    # - name: Install Composer dependencies
+    #   run: |
+    #     curl -sS https://getcomposer.org/installer | php
+    #     php composer.phar install --no-dev --optimize-autoloader  # Instala dependencias sin las de desarrollo
 
-    - name: Install npm dependencies and build assets
-      run: |
-        npm install
-        npm run build  # Compila los activos de Laravel con Vite o Mix
+    # - name: Install npm dependencies and build assets
+    #   run: |
+    #     npm install
+    #     npm run build  # Compila los activos de Laravel con Vite o Mix
 
     - name: Deploy to Server
       env:
@@ -42,7 +42,17 @@ jobs:
       run: |
         echo "$KEY" > private_key.pem  # Crea un archivo de clave privada temporal
         chmod 600 private_key.pem
-        rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac  # Sincroniza los archivos con el servidor
+     #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac  # Sincroniza los archivos con el servidor
+
+    - name: Depurar variables de entorno
+      run: |
+        echo "Usuario: $USER"
+        echo "Host: $HOST"
+        echo "Clave: ${KEY:+Cargada correctamente}"
+
+    - name: Probar conexión SSH
+      run: ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo 'Conexión exitosa'"
+
 
     - name: Clear temporary private key
       run: rm -f private_key.pem  # Borra la clave privada temporal
