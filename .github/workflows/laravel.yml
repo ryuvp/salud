@@ -42,6 +42,9 @@ jobs:
       run: |
         echo "$KEY" > private_key.pem  # Crea un archivo de clave privada temporal
         chmod 600 private_key.pem
+
+        # Debug: Muestra el contenido de la clave privada para asegurarse de que está siendo cargada correctamente
+        cat private_key.pem
         rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac  # Sincroniza los archivos con el servidor
 
     - name: Clear temporary private key
