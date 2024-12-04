@@ -40,9 +40,9 @@ jobs:
         USER: ${{ secrets.SERVER_USER }}  # Usuario SSH en el servidor
         KEY: ${{ secrets.DEPLOY_SSH_KEY }}  # Clave SSH almacenada en los secrets de GitHub
       run: |
-        echo "$KEY" > private_key.pem  # Crea un archivo de clave privada temporal
-        chmod 600 private_key.pem
-        ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo 'Conexión exitosa'"
+        echo "$KEY" > private_key
+        chmod 600 private_key
+        ssh -i private_key -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'Conexión exitosa'"
      #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
     - name: Clear temporary private key
       run: rm -f private_key.pem  # Borra la clave privada temporal
