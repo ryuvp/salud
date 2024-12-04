@@ -43,7 +43,7 @@ jobs:
         echo "$KEY" > private_key
         chmod 600 private_key
         ls -l private_key
-        ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST
+        ssh -i private_key -o StrictHostKeyChecking=no deploy_user@98.81.160.129
      #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
     - name: Clear temporary private key
       run: rm -f private_key.pem  # Borra la clave privada temporal
