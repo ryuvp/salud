@@ -3,36 +3,36 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main  # Se ejecutará cuando haya un push en la rama main
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Utilizamos un runner de GitHub con Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # - name: Set up PHP
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: '8.1'  # Configura PHP 8.1 (puedes ajustarlo si es necesario)
-    #     extensions: mbstring, bcmath, curl, zip, gd  # Extensiones necesarias para Laravel
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, bcmath, curl, zip, gd
 
-    # - name: Set up Node.js 20.12.2
-    #   uses: actions/setup-node@v3
-    #   with:
-    #     node-version: '20.12.2'  # Configura Node.js 20.12.2
+    - name: Set up Node.js 20.12.2
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.12.2'
 
-    # - name: Install Composer dependencies
-    #   run: |
-    #     curl -sS https://getcomposer.org/installer | php
-    #     php composer.phar install --no-dev --optimize-autoloader  # Instala dependencias sin las de desarrollo
+    - name: Install Composer dependencies
+      run: |
+        curl -sS https://getcomposer.org/installer | php
+        php composer.phar install --no-dev --optimize-autoloader  # Instala dependencias sin las de desarrollo
 
-    # - name: Install npm dependencies and build assets
-    #   run: |
-    #     npm install
-    #     npm run build  # Compila los activos de Laravel con Vite o Mix
+    - name: Install npm dependencies and build assets
+      run: |
+        npm install
+        npm run build  # Compila los activos de Laravel con Vite o Mix
 
     - name: Deploy to Server
       env:
@@ -46,8 +46,7 @@ jobs:
         rsync -avz --delete --exclude='.git*' --exclude='node_modules' \
         -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
 
-     #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
 
     - name: Clear temporary private key
-      run: rm -f private_key.pem  # Borra la clave privada temporal
+      run: rm -f private_key.pem
 
