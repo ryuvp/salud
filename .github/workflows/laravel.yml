@@ -34,16 +34,20 @@ jobs:
     #     npm install
     #     npm run build  # Compila los activos de Laravel con Vite o Mix
 
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-          host: ${{ secrets.SERVER_HOST }}  # Dirección IP o dominio del servidor
-          username: ${{ secrets.SERVER_USER }}  # Usuario SSH (ej. deploy_user)
-          key: ${{ secrets.DEPLOY_SSH_KEY }}  # Clave privada SSH
-          port: 22  # Puerto SSH (predeterminado: 22)
-          script: |
-            echo "Conexión SSH exitosa"
-            # Sincronizar archivos al servidor
-            pwd && ls -la
-            # rsync -avz --delete --exclude='.git*' --exclude='node_modules' ./salud/ /var/www/renopac/
+    - name: Deploy to Server
+      env:
+        HOST: 98.81.160.129
+        USER: deploy_user
+        KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      run: |
+        echo "$KEY" > private_key.pem
+        chmod 600 private_key.pem
+        ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo 'Conexión SSH exitosa'"
+        rsync -avz --delete --exclude='.git*' --exclude='node_modules' \
+        -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
+
+     #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
+
+    - name: Clear temporary private key
+      run: rm -f private_key.pem  # Borra la clave privada temporal
 
