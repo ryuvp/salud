@@ -44,5 +44,5 @@ jobs:
           script: |
             echo "Conexión SSH exitosa"
             # Sincronizar archivos al servidor
-            rsync -avz --delete --exclude='.git*' --exclude='node_modules' ./ /var/www/renopac
+            rsync -avz --delete --exclude='.git*' --exclude='node_modules' ./salud/ /var/www/renopac/
 
