@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest  # Utilizamos un runner de GitHub con Ubuntu
 
     steps:
-    # - name: Checkout code
-    #   uses: actions/checkout@v3  # Extrae el código del repositorio
+    - name: Checkout code
+      uses: actions/checkout@v3
 
     # - name: Set up PHP
     #   uses: shivammathur/setup-php@v2
@@ -34,19 +34,15 @@ jobs:
     #     npm install
     #     npm run build  # Compila los activos de Laravel con Vite o Mix
 
-    - name: Deploy to Server
-      env:
-        HOST: ${{ secrets.SERVER_HOST }}  # Dirección del servidor
-        USER: ${{ secrets.SERVER_USER }}  # Usuario SSH en el servidor
-        KEY: ${{ secrets.DEPLOY_SSH_KEY }}  # Clave SSH almacenada en los secrets de GitHub
-      run: |
-        echo "$KEY" > private_key.pem
-        chmod 600 private_key.pem
-        echo "Verificando conexión SSH:"
-        ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo 'Conexión exitosa'"
-
-     #   rsync -avz --delete --exclude='.git*' --exclude='node_modules' -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./ $USER@$HOST:/var/www/renopac
-
-    - name: Clear temporary private key
-      run: rm -f private_key.pem  # Borra la clave privada temporal
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+          host: ${{ secrets.SERVER_HOST }}  # Dirección IP o dominio del servidor
+          username: ${{ secrets.SERVER_USER }}  # Usuario SSH (ej. deploy_user)
+          key: ${{ secrets.DEPLOY_SSH_KEY }}  # Clave privada SSH
+          port: 22  # Puerto SSH (predeterminado: 22)
+          script: |
+            echo "Conexión SSH exitosa"
+            # Sincronizar archivos al servidor
+            rsync -avz --delete --exclude='.git*' --exclude='node_modules' ./ /var/www/renopac
 
