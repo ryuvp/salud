@@ -1,0 +1,1 @@
+import{s as e}from"./app-SQe7OV8o.js";import{R as r}from"./user-BG8TCbkm.js";class i extends r{constructor(){super("diagnostic")}cie10(){return e({url:"/get-cie10",method:"get"})}ipress(){return e({url:"/get-ipress",method:"get"})}}export{i as D};

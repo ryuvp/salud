@@ -1,0 +1,1 @@
+import{_ as e,o,c,C as n}from"./_plugin-vue_export-helper-DRuSU7Sp.js";const s={},t=n("div",{class:"loading"},"Loading…",-1),a=[t];function r(_,d){return o(),c("div",null,a)}const l=e(s,[["render",r]]);export{l as A};
