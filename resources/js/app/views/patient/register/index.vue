@@ -154,9 +154,38 @@ const saveUser = async () => {
     }
 }
 
+const parseBirthdate = (birthdate) => {
+    if (!birthdate || birthdate instanceof Date) {
+        return birthdate ?? null;
+    }
+    if (typeof birthdate !== 'string') {
+        return null;
+    }
+    const isoMatch = birthdate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!isoMatch) {
+        return null;
+    }
+    const year = Number(isoMatch[1]);
+    const month = Number(isoMatch[2]);
+    const day = Number(isoMatch[3]);
+    return new Date(year, month - 1, day);
+};
+
 const editUser = (editUser) => {
     user.value = { ...editUser }
-
+    user.value.birthdate = parseBirthdate(editUser.birthdate);
+    ubigeo.value = {
+        department: editUser.department ?? null,
+        province: editUser.province ?? null,
+        district: editUser.district ?? null,
+    };
+    loadDepartments();
+    if (ubigeo.value.department?.id) {
+        loadProvincesUbigeo();
+    }
+    if (ubigeo.value.province?.id) {
+        loadDistrictsUbigeo();
+    }
     userDialog.value = true;
     isEditing.value = true;
 }
@@ -314,17 +343,20 @@ const showWarning = (message) => {
                             <div class="field col">
                                 <label for="department">Departamento</label>
                                 <Dropdown id="department" v-model="ipress.department" @change="loadProvinces"
-                                    :options="departments" optionLabel="name" placeholder="Select a Department" />
+                                    :options="departments" optionLabel="name" dataKey="id"
+                                    placeholder="Select a Department" />
                             </div>
                             <div class="field col">
                                 <label for="province">Provincia</label>
                                 <Dropdown id="province" v-model="ipress.province" @change="loadDistricts"
-                                    :options="provinces" optionLabel="name" placeholder="Select a Province" />
+                                    :options="provinces" optionLabel="name" dataKey="id"
+                                    placeholder="Select a Province" />
                             </div>
                             <div class="field col">
                                 <label for="district">Distrito</label>
                                 <Dropdown id="district" v-model="ipress.district" @change="loadIpresses"
-                                    :options="districts" optionLabel="name" placeholder="Select a District" />
+                                    :options="districts" optionLabel="name" dataKey="id"
+                                    placeholder="Select a District" />
                             </div>
                         </div>
                         <div class="field">
@@ -387,17 +419,19 @@ const showWarning = (message) => {
                         <div class="field col">
                             <label for="department">Departamento</label>
                             <Dropdown id="department" v-model="ubigeo.department" @change="loadProvincesUbigeo"
-                                :options="departments" optionLabel="name" placeholder="Select a Department" />
+                                :options="departments" optionLabel="name" dataKey="id"
+                                placeholder="Select a Department" />
                         </div>
                         <div class="field col">
                             <label for="province">Provincia</label>
                             <Dropdown id="province" v-model="ubigeo.province" @change="loadDistrictsUbigeo"
-                                :options="provincesUbigeo" optionLabel="name" placeholder="Select a Province" />
+                                :options="provincesUbigeo" optionLabel="name" dataKey="id"
+                                placeholder="Select a Province" />
                         </div>
                         <div class="field col">
                             <label for="district">Distrito</label>
                             <Dropdown id="district" v-model="ubigeo.district" :options="districtsUbigeo"
-                                optionLabel="name" placeholder="Select a District" />
+                                optionLabel="name" dataKey="id" placeholder="Select a District" />
                         </div>
                     </div>
                     <div class="field">
