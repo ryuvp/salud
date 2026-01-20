@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UbigeoController;
 use App\Http\Controllers\Api\IpressController;
 use App\Http\Controllers\Api\Cie10Controller;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DiagnosticController;
 use App\Http\Controllers\Api\MedicamentController;
 use App\Http\Controllers\Api\PrescriptionController;
@@ -47,6 +48,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //ruta para seguimiento al paciente
     Route::get('/patients/follow', [UserController::class, 'getPatientsForFollow']);
     Route::get('/patients/report', [UserController::class, 'getpatientsForReport']);
+
+    //dashboard operativo
+    Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
 
     //rutas para ubigeo Departamento, Provincia y Distrito
     Route::get('/get-departments', [UbigeoController::class, 'getDepartments']);

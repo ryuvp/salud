@@ -26,7 +26,9 @@ service.interceptors.response.use(
     return response.data;
   },
   error => {
-    removeToken();
+    if (error.response && [401, 403, 419].includes(error.response.status)) {
+      removeToken();
+    }
     let message = error.message;
     if (error.response.data && error.response.data.message) {
       message = error.response.data.message;
