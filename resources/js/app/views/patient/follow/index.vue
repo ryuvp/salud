@@ -22,7 +22,6 @@ const diagnosticDialog = ref(null);
 const changeIpressDialog = ref(null);
 const medicamentDialog = ref(null);
 const deleteMedicamentDialog = ref(null);
-const cie10s = ref(null);
 const medicaments = ref(null);
 const filteredCie10s = ref([]);
 const filteredMedicament = ref([]);
@@ -55,15 +54,6 @@ const loadUsers = async () => {
     }
 };
 
-const loadCie10s = async () => {
-    try {
-        const data = await cie10Resource.list();
-        cie10s.value = data;
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar los diagnosticos', life: 3000 });
-    }
-}
-
 const loadMedicaments = async () => {
     try {
         const data = await medicamentResource.list();
@@ -73,12 +63,28 @@ const loadMedicaments = async () => {
     }
 }
 
-const searchCie10 = (event) => {
-    const queryWords = event.query.toLowerCase().split(' ');
+const searchCie10 = async (event) => {
+    const query = event.query ? event.query.trim() : '';
+    if (!query) {
+        filteredCie10s.value = [];
+        return;
+    }
 
-    filteredCie10s.value = cie10s.value.filter(cie10 =>
-        queryWords.every(word => cie10.name.toLowerCase().includes(word))
-    );
+    try {
+        const firstBatch = await cie10Resource.list({ q: query, limit: 10, page: 1 });
+        let results = Array.isArray(firstBatch) ? firstBatch : (firstBatch.data || []);
+
+        if (results.length === 10) {
+            const secondBatch = await cie10Resource.list({ q: query, limit: 10, page: 2 });
+            const moreResults = Array.isArray(secondBatch) ? secondBatch : (secondBatch.data || []);
+            results = results.concat(moreResults).slice(0, 20);
+        }
+
+        filteredCie10s.value = results;
+    } catch (error) {
+        filteredCie10s.value = [];
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al buscar diagnosticos', life: 3000 });
+    }
 };
 const searchMedicament = (event) =>{
     const queryWords = event.query.toLowerCase().split(' ');
@@ -94,8 +100,6 @@ const initFilters = () => {
 
 const openNew = (user) => {
     diagnosticDialog.value = true;
-
-    loadCie10s();
 
     diagnostic.value.patient = user;
     patient.value = user;

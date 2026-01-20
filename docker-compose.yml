@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: salud-app
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: salud
+      DB_USERNAME: salud
+      DB_PASSWORD: secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+
+  db:
+    image: mysql:8.0
+    container_name: salud-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: salud
+      MYSQL_USER: salud
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  node:
+    image: node:20-alpine
+    container_name: salud-node
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - app
+
+volumes:
+  db_data:

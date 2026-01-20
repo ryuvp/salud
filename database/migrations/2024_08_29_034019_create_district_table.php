@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('district', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            // Intended relation: province.id
             $table->unsignedBigInteger('province_id');
-            $table->string('ubigeo_reniec');
-            $table->string('ubigeo_inei');
+            $table->string('ubigeo_reniec')->nullable();
+            $table->string('ubigeo_inei')->nullable();
             $table->timestamps();
-
-            $table->foreign('province_id')->references('id')->on('province')->onDelete('cascade');
         });
     }
 

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('prescription', function (Blueprint $table) {
             $table->id();
+            // Intended relation: diagnostic.id
             $table->unsignedBigInteger('diagnostic_id');
+            // Intended relation: medicament.id
             $table->unsignedBigInteger('medicament_id');
-            $table->foreign('diagnostic_id')->references('id')->on('diagnostic')->onDelete('cascade');
-            $table->foreign('medicament_id')->references('id')->on('medicament')->onDelete('cascade');
             $table->integer('quantity')->nullable();
             $table->integer('frequency')->nullable();
             $table->date('start_date')->nullable();

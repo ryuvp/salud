@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('province', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            // Intended relation: department.id
             $table->unsignedBigInteger('department_id');
             $table->timestamps();
-
-            $table->foreign('department_id')->references('id')->on('department')->onDelete('cascade');
         });
     }
 

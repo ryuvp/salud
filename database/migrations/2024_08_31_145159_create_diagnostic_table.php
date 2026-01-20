@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('diagnostic', function (Blueprint $table) {
             $table->id();
+            // Intended relation: users.id
             $table->unsignedBigInteger('user_id');
+            // Intended relation: cie10.id
             $table->unsignedBigInteger('cie10_id');
+            // Intended relation: ipress.id
             $table->unsignedBigInteger('ipress_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('cie10_id')->references('id')->on('cie10')->onDelete('cascade');
-            $table->foreign('ipress_id')->references('id')->on('ipress')->onDelete('cascade');
             $table->timestamps();
         });
     }
